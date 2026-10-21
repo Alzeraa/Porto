@@ -1,0 +1,16 @@
+PORT=5000
+NODE_ENV=development
+
+# Database Configuration - PostgreSQL (PGlite Local)
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=portfolio_db
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_DATA_DIR=./pg_data
+
+# Email Configuration (Optional - Resend)
+RESEND_API_KEY=
+ADMIN_EMAIL=
+
+FRONTEND_URL=http://localhost:5173
