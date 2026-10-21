@@ -5,10 +5,12 @@ import WhatsAppPopup from './components/common/WhatsAppPopup';
 import AppRoutes from './routes/AppRoutes';
 import { useLocationStore } from './store/locationStore';
 import { useThemeStore } from './store/themeStore';
+import { useThemeColors } from './hooks/useThemeColors';
 import { smoothScrollTo } from './utils/scroll';
 
 function App() {
   const { darkMode } = useThemeStore();
+  const { theme } = useThemeColors();
   const location = useLocationStore();
   const [showScrollTop, setShowScrollTop] = useState(false);
 
@@ -41,6 +43,15 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Jika sedang di halaman admin /erynalva, tampilkan tampilan admin full-screen
+  if (location.pathname === '/erynalva' || location.pathname.startsWith('/erynalva/')) {
+    return (
+      <div className="min-h-screen bg-slate-950">
+        <AppRoutes darkMode={darkMode} />
+      </div>
+    );
+  }
+
   return (
     <div className={`min-h-screen ${darkMode ? 'dark' : ''}`}>
       <Navbar currentPath={location.pathname} />
@@ -52,9 +63,12 @@ function App() {
         {/* Scroll to Top - Kiri */}
         <button
           onClick={scrollToTop}
-          className={`fixed bottom-8 left-8 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 dark:from-cyan-600 dark:to-teal-600 text-white shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-xl ${
+          className={`fixed bottom-8 left-8 z-50 w-14 h-14 rounded-full bg-gradient-to-br text-white shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-xl ${
             showScrollTop ? 'opacity-100 visible' : 'opacity-0 invisible'
           }`}
+          style={{
+            background: `linear-gradient(135deg, ${theme.primary_color} 0%, ${theme.primary_light} 100%)`
+          }}
         >
           <svg 
             className="w-7 h-7" 

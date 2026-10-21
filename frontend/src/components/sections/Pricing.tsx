@@ -1,14 +1,39 @@
+import { useState, useEffect } from 'react';
 import { useScrollAnimation } from '../../hooks/useScrollAnimation';
 import { useScrollFade } from '../../hooks/useScrollFade';
+import { useThemeColors } from '../../hooks/useThemeColors';
+import { API_ENDPOINTS } from '../../config/api';
 
 interface Package {
+  id?: number;
   name: string;
   price: string;
   popular: boolean;
   features: string[];
 }
 
-const PackageCard = ({ pkg, index }: { pkg: Package; index: number }) => {
+const defaultPackages: Package[] = [
+  {
+    name: 'Landing Page',
+    price: 'Rp 399K',
+    popular: false,
+    features: ['Responsive Design', '5-7 Sections', 'Contact Form', 'Basic SEO', '7 Hari Pengerjaan']
+  },
+  {
+    name: 'Business Website',
+    price: 'Rp 1,2JT',
+    popular: true,
+    features: ['Multi Page (Max 8)', 'Premium UI/UX', 'SEO Optimization', 'Admin CMS', '14 Hari Pengerjaan', '30 Hari Support', 'Free Domain 1 Tahun']
+  },
+  {
+    name: 'Full-Stack App',
+    price: 'Rp 3JT+',
+    popular: false,
+    features: ['Full-Stack Development', 'Custom Features', 'Database Integration', 'API Development', '21-30 Hari Pengerjaan', 'Full Source Code']
+  }
+];
+
+const PackageCard = ({ pkg, index, theme }: { pkg: Package; index: number; theme: any }) => {
   const { ref, isVisible } = useScrollAnimation(0.3);
   
   const animations = ['animate-fade-left', 'animate-scale-up', 'animate-fade-right'];
@@ -17,30 +42,37 @@ const PackageCard = ({ pkg, index }: { pkg: Package; index: number }) => {
   return (
     <div 
       ref={ref}
-      className={`p-8 rounded-2xl border-2 transition-all animate-on-scroll ${animationClass} ${isVisible ? 'visible' : ''} ${
-        pkg.popular 
-          ? 'border-cyan-500 shadow-2xl bg-gradient-to-b from-cyan-50 to-white dark:from-cyan-900/30 dark:to-slate-900 scale-105' 
-          : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 hover:border-cyan-300 dark:hover:border-cyan-700 hover:shadow-xl'
-      }`}
+      className={`p-8 rounded-2xl border-2 transition-all animate-on-scroll ${animationClass} ${isVisible ? 'visible' : ''}`}
+      style={{
+        borderColor: pkg.popular ? theme.primary_light : theme.accent_color + '40',
+        background: pkg.popular 
+          ? `linear-gradient(to bottom, rgba(255,255,255,0.98), rgba(255,255,255,0.95))`
+          : 'rgba(255, 255, 255, 0.95)',
+        transform: pkg.popular ? 'scale(1.05)' : 'scale(1)',
+        boxShadow: pkg.popular ? `0 25px 50px -12px ${theme.primary_light}40` : 'none'
+      }}
     >
       {pkg.popular && (
-        <span className="inline-block bg-gradient-to-r from-cyan-600 to-teal-500 text-white px-4 py-1 rounded-full text-sm font-semibold mb-4">Paling Populer</span>
+        <span className="inline-block text-white px-4 py-1 rounded-full text-sm font-semibold mb-4" style={{ background: `linear-gradient(to right, ${theme.primary_light}, ${theme.accent_color})` }}>Paling Populer</span>
       )}
-      <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{pkg.name}</h3>
-      <p className="text-4xl font-bold text-cyan-600 dark:text-cyan-400 mb-6">{pkg.price}</p>
+      <h3 className="text-2xl font-bold text-slate-900 mb-2">{pkg.name}</h3>
+      <p className="text-4xl font-bold mb-6" style={{ color: theme.primary_light }}>{pkg.price}</p>
       <ul className="space-y-3 mb-8">
-        {pkg.features.map((feature, j) => (
-          <li key={j} className="flex items-center text-slate-700 dark:text-slate-300">
-            <span className="text-cyan-500 dark:text-cyan-400 mr-3 text-lg">✓</span>
+        {pkg.features && pkg.features.map((feature, j) => (
+          <li key={j} className="flex items-center text-slate-700">
+            <span className="mr-3 text-lg" style={{ color: theme.accent_color }}>✓</span>
             {feature}
           </li>
         ))}
       </ul>
-      <a href="#contact" className={`block text-center py-3 px-6 rounded-full font-semibold transition-all ${
-        pkg.popular 
-          ? 'bg-gradient-to-r from-cyan-600 to-teal-500 text-white hover:shadow-lg' 
-          : 'bg-white dark:bg-slate-800 border-2 border-cyan-600 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-600 hover:text-white dark:hover:bg-cyan-600'
-      }`}>
+      <a href="#contact" className="block text-center py-3 px-6 rounded-full font-semibold transition-all text-white"
+        style={{
+          background: pkg.popular 
+            ? `linear-gradient(to right, ${theme.primary_light}, ${theme.accent_color})`
+            : theme.primary_color,
+          boxShadow: `0 0 20px ${theme.primary_light}40`
+        }}
+      >
         Pesan Sekarang
       </a>
     </div>
@@ -48,32 +80,25 @@ const PackageCard = ({ pkg, index }: { pkg: Package; index: number }) => {
 };
 
 const Pricing = () => {
-  const packages: Package[] = [
-    {
-      name: 'Landing Page',
-      price: 'Rp 399K',
-      popular: false,
-      features: ['Responsive Design', '5-7 Sections', 'Contact Form', 'Basic SEO', '7 Hari Pengerjaan']
-    },
-    {
-      name: 'Business Website',
-      price: 'Rp 1,2JT',
-      popular: true,
-      features: ['Multi Page (Max 8)', 'Premium UI/UX', 'SEO Optimization', 'Admin CMS', '14 Hari Pengerjaan', '30 Hari Support', 'Free Domain 1 Tahun']
-    },
-    {
-      name: 'Full-Stack App',
-      price: 'Rp 3JT+',
-      popular: false,
-      features: ['Full-Stack Development', 'Custom Features', 'Database Integration', 'API Development', '21-30 Hari Pengerjaan', 'Full Source Code']
-    }
-  ];
+  const [packages, setPackages] = useState<Package[]>(defaultPackages);
+  const { theme } = useThemeColors();
+
+  useEffect(() => {
+    fetch(API_ENDPOINTS.pricing)
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 'success' && Array.isArray(res.data) && res.data.length > 0) {
+          setPackages(res.data);
+        }
+      })
+      .catch((err) => console.log('Using default pricing', err));
+  }, []);
 
   const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation(0.3);
   const { ref: contentRef, opacity, scale } = useScrollFade();
 
   return (
-    <section id="pricing" className="py-24 bg-slate-50 dark:bg-slate-900">
+    <section id="pricing" className="py-24 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900">
       <div 
         ref={contentRef} 
         className="max-w-6xl mx-auto px-6"
@@ -84,13 +109,13 @@ const Pricing = () => {
         }}
       >
         <div ref={headerRef} className={`text-center mb-16 animate-on-scroll animate-bounce ${headerVisible ? 'visible' : ''}`}>
-          <p className="text-cyan-600 dark:text-cyan-400 font-semibold uppercase tracking-wide mb-3">Harga</p>
-          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white">Paket yang Sesuai untuk Kamu</h2>
+          <p className="font-semibold uppercase tracking-wide mb-3" style={{ color: theme.accent_color }}>Harga</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-white">Paket yang Sesuai untuk Kamu</h2>
         </div>
         
         <div className="grid md:grid-cols-3 gap-8">
           {packages.map((pkg, i) => (
-            <PackageCard key={i} pkg={pkg} index={i} />
+            <PackageCard key={pkg.id || i} pkg={pkg} index={i} theme={theme} />
           ))}
         </div>
       </div>
@@ -99,4 +124,3 @@ const Pricing = () => {
 };
 
 export default Pricing;
-

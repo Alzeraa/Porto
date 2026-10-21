@@ -1,4 +1,7 @@
+import { useState, useEffect } from 'react';
 import { navigateTo, navigateToSection } from '../../utils/navigation';
+import { useThemeColors } from '../../hooks/useThemeColors';
+import { API_ENDPOINTS } from '../../config/api';
 
 interface MenuItem {
   name: string;
@@ -7,6 +10,23 @@ interface MenuItem {
 }
 
 const Footer = () => {
+  const { theme } = useThemeColors();
+  const [brand, setBrand] = useState({ name: 'Alvaeryn', logo_url: '/Final-Logo.png' });
+
+  useEffect(() => {
+    fetch(API_ENDPOINTS.profile)
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 'success' && res.data) {
+          setBrand({
+            name: res.data.name || 'Alvaeryn',
+            logo_url: res.data.logo_url || '/Final-Logo.png'
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const menuItems: MenuItem[] = [
     { name: 'Home', type: 'section', target: '#home' },
     { name: 'Layanan', type: 'section', target: '#services' },
@@ -34,25 +54,25 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-400 py-12 border-t border-slate-200 dark:border-slate-900">
+    <footer className="bg-white text-slate-700 py-12 border-t border-slate-200">
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid md:grid-cols-4 gap-8 mb-12">
           {/* Brand */}
           <div className="md:col-span-2">
             <div className="flex items-center gap-3 mb-3">
-              <img src="/Final-Logo.png" alt="Alvaeryn Logo" className="h-14 w-14" />
-              <div className="text-xl font-bold bg-gradient-to-r from-cyan-600 to-teal-500 bg-clip-text text-transparent">
-                Alvaeryn
+              <img src={brand.logo_url || '/Final-Logo.png'} alt={`${brand.name} Logo`} className="h-14 w-14" />
+              <div className="text-xl font-bold" style={{ color: theme.primary_color }}>
+                {brand.name}
               </div>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-600 mb-4">
+            <p className="text-xs text-slate-500 mb-4">
               Solusi digital profesional untuk UMKM Indonesia
             </p>
           </div>
 
           {/* Menu */}
           <div>
-            <h4 className="text-xs font-bold text-slate-800 dark:text-slate-300 mb-4 uppercase">
+            <h4 className="text-xs font-bold text-slate-800 mb-4 uppercase">
               Halaman
             </h4>
             <ul className="space-y-2">
@@ -61,7 +81,10 @@ const Footer = () => {
                   <button
                     type="button"
                     onClick={() => handleMenuClick(item.type, item.target)}
-                    className="text-xs text-slate-600 dark:text-slate-500 hover:text-cyan-600 dark:hover:text-cyan-400 transition"
+                    className="text-xs text-slate-600 hover:transition"
+                    style={{ color: 'inherit' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = theme.accent_color)}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = 'inherit')}
                   >
                     {item.name}
                   </button>
@@ -72,13 +95,16 @@ const Footer = () => {
 
           {/* Contact */}
           <div>
-            <h4 className="text-xs font-bold text-slate-800 dark:text-slate-300 mb-4 uppercase">
+            <h4 className="text-xs font-bold text-slate-800 mb-4 uppercase">
               Kontak
             </h4>
             <ul className="space-y-2">
               {contactItems.map((item, i) => (
                 <li key={i}>
-                  <a href={item.href} target="_blank" rel="noopener noreferrer" className="text-xs text-slate-600 dark:text-slate-500 hover:text-cyan-600 dark:hover:text-cyan-400 transition">
+                  <a href={item.href} target="_blank" rel="noopener noreferrer" className="text-xs text-slate-600" style={{ color: 'inherit' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = theme.accent_color)}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = 'inherit')}
+                  >
                     {item.name}
                   </a>
                 </li>
@@ -88,9 +114,9 @@ const Footer = () => {
         </div>
 
         {/* Copyright */}
-        <div className="pt-8 border-t border-slate-200 dark:border-slate-900 text-center">
-          <p className="text-xs text-slate-500 dark:text-slate-600">
-            © {new Date().getFullYear()} Alvaeryn. All rights reserved.
+        <div className="pt-8 border-t border-slate-200 text-center">
+          <p className="text-xs text-slate-500">
+            © {new Date().getFullYear()} {brand.name}. All rights reserved.
           </p>
         </div>
       </div>

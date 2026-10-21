@@ -1,10 +1,14 @@
 const { Resend } = require('resend');
 
-// Initialize Resend client
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend client only if API key is provided
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 // Send notification email to admin
 exports.sendContactNotification = async (contactData) => {
+  if (!resend) {
+    console.log('[EmailService] RESEND_API_KEY belum disetel di .env, notifikasi email dilewati.');
+    return false;
+  }
   try {
     const adminEmail = process.env.ADMIN_EMAIL || 'vaerann@gmail.com';
     
@@ -33,6 +37,9 @@ exports.sendContactNotification = async (contactData) => {
 
 // Send thank you email to user
 exports.sendThankYouEmail = async (userEmail, userName) => {
+  if (!resend) {
+    return false;
+  }
   try {
     await resend.emails.send({
       from: 'Alvaeryn Portfolio <onboarding@resend.dev>',

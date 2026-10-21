@@ -1,11 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const contactController = require('../controllers/contactController');
+const { authenticateToken } = require('../middlewares/authMiddleware');
 
-// POST /api/contact - Kirim pesan
+// Public route: Kirim pesan kontak
 router.post('/', contactController.submitContact);
 
-// GET /api/contact - Ambil semua pesan (untuk admin)
-router.get('/', contactController.getAllContacts);
+// Admin routes:
+router.get('/', authenticateToken, contactController.getAllContacts);
+router.delete('/:id', authenticateToken, contactController.deleteContact);
+router.patch('/:id/read', authenticateToken, contactController.markAsRead);
 
 module.exports = router;

@@ -1,6 +1,9 @@
+import { useState, useEffect } from 'react';
 import { navigateTo, navigateToSection } from '../../utils/navigation';
 import { useThemeStore } from '../../store/themeStore';
+import { useThemeColors } from '../../hooks/useThemeColors';
 import { useUIStore } from '../../store/uiStore';
+import { API_ENDPOINTS } from '../../config/api';
 
 interface NavbarProps {
   currentPath: string;
@@ -14,7 +17,23 @@ interface MenuItem {
 
 const Navbar = ({ currentPath }: NavbarProps) => {
   const { darkMode, toggleDarkMode } = useThemeStore();
+  const { theme } = useThemeColors();
   const { isMobileMenuOpen, toggleMobileMenu, closeMobileMenu } = useUIStore();
+  const [brand, setBrand] = useState({ name: 'Alvaeryn', logo_url: '/Final-Logo.png' });
+
+  useEffect(() => {
+    fetch(API_ENDPOINTS.profile)
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 'success' && res.data) {
+          setBrand({
+            name: res.data.name || 'Alvaeryn',
+            logo_url: res.data.logo_url || '/Final-Logo.png'
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const menuItems: MenuItem[] = [
     { name: 'Home', type: 'section', target: '#home' },
@@ -39,7 +58,7 @@ const Navbar = ({ currentPath }: NavbarProps) => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-3 pt-3">
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center rounded-full bg-white/92 dark:bg-slate-900/92 backdrop-blur-lg border border-slate-200/80 dark:border-slate-800/80 shadow-sm px-3 md:px-7 py-2 md:py-3">
+        <div className="flex justify-between items-center rounded-full bg-white/95 backdrop-blur-lg border border-slate-200/80 shadow-sm px-3 md:px-7 py-2 md:py-3">
           {/* Logo */}
           <button
             onClick={(e) => {
@@ -55,9 +74,9 @@ const Navbar = ({ currentPath }: NavbarProps) => {
             }}
             className="flex items-center gap-2 hover:scale-105 transition"
           >
-            <img src="/Final-Logo.png" alt="Alvaeryn Logo" className="h-10 w-10 md:h-14 md:w-14" />
-            <span className="text-lg md:text-2xl font-bold bg-gradient-to-r from-cyan-600 to-teal-500 bg-clip-text text-transparent">
-              Alvaeryn
+            <img src={brand.logo_url || '/Final-Logo.png'} alt={`${brand.name} Logo`} className="h-10 w-10 md:h-12 md:w-12 object-contain rounded-full" />
+            <span className="text-lg md:text-2xl font-bold" style={{ color: theme.primary_color }}>
+              {brand.name}
             </span>
           </button>
 
@@ -72,9 +91,10 @@ const Navbar = ({ currentPath }: NavbarProps) => {
                 }}
                 className={`text-sm font-medium transition ${
                   currentPath === item.target
-                    ? 'text-cyan-600 dark:text-cyan-400'
-                    : 'text-slate-700 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400'
+                    ? 'dark:text-white'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                 }`}
+                style={currentPath === item.target ? { color: theme.accent_color } : {}}
               >
                 {item.name}
               </button>
@@ -84,14 +104,18 @@ const Navbar = ({ currentPath }: NavbarProps) => {
                 e.preventDefault();
                 handleMenuClick('section', '#contact');
               }}
-              className="ml-2 px-5 py-2.5 bg-gradient-to-r from-cyan-600 to-teal-500 text-white rounded-full text-sm font-semibold hover:shadow-lg hover:shadow-cyan-500/30 transition-all"
+              className="ml-2 px-5 py-2.5 text-white rounded-full text-sm font-semibold hover:shadow-lg transition-all"
+              style={{ 
+                background: `linear-gradient(to right, ${theme.primary_color}, ${theme.primary_light})`,
+                boxShadow: `0 0 15px ${theme.primary_light}40`
+              }}
             >
               Konsultasi Gratis
             </button>
             {/* Dark Mode Toggle */}
             <button
               onClick={toggleDarkMode}
-              className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+              className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 transition"
               aria-label="Toggle dark mode"
             >
               {darkMode ? <span className="text-xl">☀️</span> : <span className="text-xl">🌙</span>}
@@ -130,7 +154,7 @@ const Navbar = ({ currentPath }: NavbarProps) => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden mt-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-lg overflow-hidden">
+          <div className="md:hidden mt-3 bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden">
             <div className="flex flex-col gap-3 items-center py-4">
               {menuItems.map((item) => (
                 <button
@@ -138,19 +162,16 @@ const Navbar = ({ currentPath }: NavbarProps) => {
                   onClick={() => {
                     handleMenuClick(item.type, item.target);
                   }}
-                  className={`font-medium py-2 transition text-xl ${
-                    currentPath === item.target
-                      ? 'text-cyan-600 dark:text-cyan-400'
-                      : 'text-slate-700 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400'
-                  }`}
+                  className={`font-medium py-2 transition text-xl text-slate-700 hover:text-slate-900`}
+                  style={currentPath === item.target ? { color: theme.accent_color } : {}}
                 >
                   {item.name}
                 </button>
               ))}
-              <div className="flex flex-col gap-4 items-center w-full pt-4 border-t border-slate-200 dark:border-slate-800">
+              <div className="flex flex-col gap-4 items-center w-full pt-4 border-t border-slate-200">
                 <button
                   onClick={toggleDarkMode}
-                  className="p-3 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                  className="p-3 rounded-full bg-slate-100 hover:bg-slate-200 transition"
                   aria-label="Toggle dark mode"
                 >
                   {darkMode ? <span className="text-2xl">☀️</span> : <span className="text-2xl">🌙</span>}
@@ -159,7 +180,10 @@ const Navbar = ({ currentPath }: NavbarProps) => {
                   onClick={() => {
                     handleMenuClick('section', '#contact');
                   }}
-                  className="px-8 py-3 bg-gradient-to-r from-cyan-600 to-teal-500 text-white rounded-full font-semibold hover:shadow-lg hover:shadow-cyan-500/30 transition-all text-lg"
+                  className="px-8 py-3 text-white rounded-full font-semibold hover:shadow-lg transition-all text-lg"
+                  style={{ 
+                    background: `linear-gradient(to right, ${theme.primary_color}, ${theme.primary_light})`
+                  }}
                 >
                   Konsultasi Gratis
                 </button>

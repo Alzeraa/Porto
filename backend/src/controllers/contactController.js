@@ -1,12 +1,11 @@
 const db = require('../config/database');
 const emailService = require('../services/emailService');
 
-// Submit contact form
+// Submit contact form (Public)
 exports.submitContact = async (req, res) => {
   try {
     const { name, email, whatsapp, service, message } = req.body;
 
-    // Validate input
     if (!name || !email || !message) {
       return res.status(400).json({
         status: 'error',
@@ -14,28 +13,28 @@ exports.submitContact = async (req, res) => {
       });
     }
 
-    // Save to database
-    const [result] = await db.execute(
-      'INSERT INTO contacts (name, email, whatsapp, service, message) VALUES (?, ?, ?, ?, ?)',
-      [name, email, whatsapp || '', service || '', message]
-    );
+    const stmt = db.prepare(`
+      INSERT INTO contacts (name, email, whatsapp, service, message)
+      VALUES (?, ?, ?, ?, ?)
+    `);
 
-    console.log('Contact saved to database:', { id: result.insertId, name, email });
+    const result = stmt.run(name, email, whatsapp || '', service || '', message);
+    const newId = result.lastInsertRowid;
 
-    // Send response FIRST to frontend (non-blocking)
+    console.log('Contact saved to database:', { id: newId, name, email });
+
     res.status(201).json({
       status: 'success',
       message: 'Pesan kamu berhasil dikirim! Saya akan segera menghubungi kamu.',
-      data: { id: result.insertId, name, email, whatsapp, service }
+      data: { id: newId, name, email, whatsapp, service }
     });
 
-    // Send emails in background (non-blocking)
+    // Kirim email notifikasi secara asynchronous (tidak memblokir respon)
     try {
       await emailService.sendContactNotification({ name, email, whatsapp, service, message });
       await emailService.sendThankYouEmail(email, name);
-      console.log('Emails sent successfully!');
     } catch (emailError) {
-      console.error('Error sending emails (continuing anyway):', emailError.message);
+      console.error('[EmailService] Error:', emailError.message);
     }
   } catch (error) {
     console.error('Error submitting contact:', error);
@@ -46,10 +45,10 @@ exports.submitContact = async (req, res) => {
   }
 };
 
-// Get all contacts (for admin)
-exports.getAllContacts = async (req, res) => {
+// Get all contacts (Admin)
+exports.getAllContacts = (req, res) => {
   try {
-    const [rows] = await db.execute('SELECT * FROM contacts ORDER BY created_at DESC');
+    const rows = db.prepare('SELECT * FROM contacts ORDER BY created_at DESC').all();
     res.json({
       status: 'success',
       data: rows
@@ -60,5 +59,30 @@ exports.getAllContacts = async (req, res) => {
       status: 'error',
       message: 'Terjadi kesalahan pada server'
     });
+  }
+};
+
+// Delete contact (Admin)
+exports.deleteContact = (req, res) => {
+  try {
+    const { id } = req.params;
+    const info = db.prepare('DELETE FROM contacts WHERE id = ?').run(id);
+    if (info.changes === 0) {
+      return res.status(404).json({ status: 'error', message: 'Pesan tidak ditemukan.' });
+    }
+    res.json({ status: 'success', message: 'Pesan berhasil dihapus.' });
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: 'Gagal menghapus pesan.' });
+  }
+};
+
+// Mark as read (Admin)
+exports.markAsRead = (req, res) => {
+  try {
+    const { id } = req.params;
+    db.prepare("UPDATE contacts SET status = 'read' WHERE id = ?").run(id);
+    res.json({ status: 'success', message: 'Status pesan diubah menjadi dibaca.' });
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: 'Gagal mengupdate status.' });
   }
 };

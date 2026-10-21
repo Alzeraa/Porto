@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useScrollAnimation } from '../../hooks/useScrollAnimation';
 import { useScrollFade } from '../../hooks/useScrollFade';
+import { useThemeColors } from '../../hooks/useThemeColors';
 import { API_ENDPOINTS } from '../../config/api';
 
 const Contact = () => {
