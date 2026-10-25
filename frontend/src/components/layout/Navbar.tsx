@@ -33,12 +33,11 @@ const Navbar = () => {
   }, []);
 
   const menuItems: MenuItem[] = [
-    { name: t('navbar.home'), type: 'section', target: '#home' },
-    { name: t('navbar.expertise'), type: 'section', target: '#expertise' },
-    { name: t('navbar.services'), type: 'section', target: '#services' },
-    { name: t('navbar.projects'), type: 'section', target: '#projects' },
-    { name: t('navbar.about'), type: 'section', target: '#about' },
-    { name: t('navbar.contact'), type: 'section', target: '#contact' },
+    { name: t('navbar.home'), type: 'section', target: '/' },
+    { name: t('navbar.services'), type: 'page', target: '/services' },
+    { name: t('navbar.projects'), type: 'page', target: '/projects' },
+    { name: t('navbar.about'), type: 'page', target: '/about' },
+    { name: t('navbar.contact'), type: 'page', target: '/contact' },
   ];
 
   const handleMenuClick = (type: 'section' | 'page', target: string) => {
@@ -46,8 +45,6 @@ const Navbar = () => {
       navigateTo(target);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      const sectionId = target.replace('#', '');
-      setActiveSection(sectionId);
       navigateToSection(target);
     }
     setIsMobileMenuOpen(false);
@@ -131,7 +128,7 @@ const Navbar = () => {
           <button
             onClick={(e) => {
               e.preventDefault();
-              handleMenuClick('section', '#contact');
+              handleMenuClick('page', '/contact');
             }}
             className="inline-flex items-center justify-center px-6 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-sans text-xs font-semibold tracking-wide transition-all duration-150 active:scale-[0.98] shadow-md shadow-blue-600/25"
           >
@@ -200,7 +197,7 @@ const Navbar = () => {
 
             <button
               onClick={() => {
-                handleMenuClick('section', '#contact');
+                handleMenuClick('page', '/contact');
               }}
               className="mt-3 w-full px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-sans text-sm font-semibold transition-all"
             >

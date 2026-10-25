@@ -13,42 +13,42 @@ interface Service {
   features: string[];
 }
 
-const defaultServices: Service[] = [
+const getDefaultServices = (t: any): Service[] => [
   {
     icon: '🌐',
-    title: 'Web Development',
-    description: 'Membangun website modern dengan React, Next.js, dan performa optimal.',
-    features: ['Responsive Design', 'SEO Friendly', 'Fast Loading']
+    title: t('services.web_development'),
+    description: t('services.web_development_desc'),
+    features: [t('services.features.responsive'), t('services.features.seo'), t('services.features.fast_loading')]
   },
   {
     icon: '📱',
-    title: 'Mobile App',
-    description: 'Aplikasi cross-platform dengan React Native & Flutter untuk iOS dan Android.',
-    features: ['Single Codebase', 'Native Performance', 'Smooth UI']
+    title: t('services.mobile_app'),
+    description: t('services.mobile_app_desc'),
+    features: [t('services.features.single_codebase'), t('services.features.native_performance'), t('services.features.smooth_ui')]
   },
   {
     icon: '🎨',
-    title: 'UI/UX Design',
-    description: 'Desain interface yang menarik dan user-friendly dengan Figma.',
-    features: ['Modern Design', 'User Research', 'Prototyping']
+    title: t('services.ui_ux_design'),
+    description: t('services.ui_ux_design_desc'),
+    features: [t('services.features.modern_design'), t('services.features.user_research'), t('services.features.prototyping')]
   },
   {
     icon: '🛒',
-    title: 'E-Commerce',
-    description: 'Toko online lengkap dengan payment gateway dan manajemen produk.',
-    features: ['Cart System', 'Payment Integration', 'Admin Dashboard']
+    title: t('services.ecommerce'),
+    description: t('services.ecommerce_desc'),
+    features: [t('services.features.cart_system'), t('services.features.payment_integration'), t('services.features.admin_dashboard')]
   },
   {
     icon: '📊',
-    title: 'Dashboard & CMS',
-    description: 'Panel admin kustom untuk mengelola konten dan data bisnis.',
-    features: ['Real-time Data', 'Analytics', 'Easy Management']
+    title: t('services.dashboard_cms'),
+    description: t('services.dashboard_cms_desc'),
+    features: [t('services.features.realtime_data'), t('services.features.analytics'), t('services.features.easy_management')]
   },
   {
     icon: '🚀',
-    title: 'Performance Optimization',
-    description: 'Optimalkan kecepatan dan performa website kamu.',
-    features: ['Speed Optimization', 'Code Refactoring', 'Caching']
+    title: t('services.performance'),
+    description: t('services.performance_desc'),
+    features: [t('services.features.speed_optimization'), t('services.features.code_refactoring'), t('services.features.caching')]
   }
 ];
 
@@ -82,9 +82,14 @@ const ServiceCard = ({ service, index, theme }: { service: Service; index: numbe
 };
 
 const Services = () => {
-  const [services, setServices] = useState<Service[]>(defaultServices);
   const { theme } = useThemeColors();
   const { t } = useLanguage();
+  const [services, setServices] = useState<Service[]>(getDefaultServices(t));
+
+  useEffect(() => {
+    // Update services when language changes
+    setServices(getDefaultServices(t));
+  }, [t]);
 
   useEffect(() => {
     fetch(API_ENDPOINTS.services)
