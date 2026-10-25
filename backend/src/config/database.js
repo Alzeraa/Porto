@@ -2,10 +2,6 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 
-// ⚠️ DEPRECATED: Menggunakan SQLite
-// ✅ SEHARUSNYA: Gunakan PostgreSQL dengan PGlite
-// TODO: Migrate ke PGlite (database.js akan di-update)
-
 // Database SQLite disimpan langsung di folder backend/portfolio.db
 const dbPath = process.env.DB_PATH || path.join(__dirname, '../../portfolio.db');
 const db = new Database(dbPath);
@@ -101,6 +97,71 @@ const initDatabase = () => {
         message TEXT NOT NULL,
         status TEXT DEFAULT 'unread',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // 6. Tabel Team
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS team (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        role TEXT NOT NULL,
+        bio TEXT NOT NULL,
+        image TEXT NOT NULL,
+        order_index INTEGER DEFAULT 0
+      );
+    `);
+
+    // 7. Tabel Testimonials
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS testimonials (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        role TEXT NOT NULL,
+        content TEXT NOT NULL,
+        rating INTEGER DEFAULT 5,
+        photo TEXT NOT NULL,
+        order_index INTEGER DEFAULT 0
+      );
+    `);
+
+    // 8. Tabel Pricing
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS pricing (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        price TEXT NOT NULL,
+        popular INTEGER DEFAULT 0,
+        features TEXT NOT NULL,
+        order_index INTEGER DEFAULT 0
+      );
+    `);
+
+    // 9. Tabel Theme Settings
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS theme_settings (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        primary_color TEXT DEFAULT '#1e3a5f',
+        primary_light TEXT DEFAULT '#2563eb',
+        primary_dark TEXT DEFAULT '#0f172a',
+        accent_color TEXT DEFAULT '#0ea5e9',
+        background_dark TEXT DEFAULT '#0f172a',
+        text_primary TEXT DEFAULT '#ffffff',
+        logo_url TEXT,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // 10. Tabel Hero Cards (untuk card stacking di hero section)
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS hero_cards (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        image TEXT NOT NULL,
+        description TEXT,
+        order_index INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
@@ -232,18 +293,6 @@ const initDatabase = () => {
       console.log('[Database] Default projects seeded.');
     }
 
-    // 6. Tabel Team
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS team (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        role TEXT NOT NULL,
-        bio TEXT NOT NULL,
-        image TEXT NOT NULL,
-        order_index INTEGER DEFAULT 0
-      );
-    `);
-
     // Seed Team jika masih kosong
     const countTeam = db.prepare('SELECT count(*) as count FROM team').get().count;
     if (countTeam === 0) {
@@ -274,19 +323,6 @@ const initDatabase = () => {
       for (const t of defaultTeam) insertTeam.run(t);
       console.log('[Database] Default team seeded.');
     }
-
-    // 7. Tabel Testimonials
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS testimonials (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        role TEXT NOT NULL,
-        content TEXT NOT NULL,
-        rating INTEGER DEFAULT 5,
-        photo TEXT NOT NULL,
-        order_index INTEGER DEFAULT 0
-      );
-    `);
 
     // Seed Testimonials jika masih kosong
     const countTesti = db.prepare('SELECT count(*) as count FROM testimonials').get().count;
@@ -321,33 +357,6 @@ const initDatabase = () => {
       for (const t of defaultTestimonials) insertTesti.run(t);
       console.log('[Database] Default testimonials seeded.');
     }
-
-    // 8. Tabel Pricing
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS pricing (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        price TEXT NOT NULL,
-        popular INTEGER DEFAULT 0,
-        features TEXT NOT NULL,
-        order_index INTEGER DEFAULT 0
-      );
-    `);
-
-    // 9. Tabel Theme Settings
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS theme_settings (
-        id INTEGER PRIMARY KEY CHECK (id = 1),
-        primary_color TEXT DEFAULT '#1e3a5f',
-        primary_light TEXT DEFAULT '#2563eb',
-        primary_dark TEXT DEFAULT '#0f172a',
-        accent_color TEXT DEFAULT '#0ea5e9',
-        background_dark TEXT DEFAULT '#0f172a',
-        text_primary TEXT DEFAULT '#ffffff',
-        logo_url TEXT,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
 
     // Seed Pricing jika masih kosong
     const countPricing = db.prepare('SELECT count(*) as count FROM pricing').get().count;
@@ -395,6 +404,40 @@ const initDatabase = () => {
         '#ffffff'
       );
       console.log('[Database] Default theme settings seeded.');
+    }
+
+    // Seed Hero Cards jika masih kosong
+    const countHeroCards = db.prepare('SELECT count(*) as count FROM hero_cards').get().count;
+    if (countHeroCards === 0) {
+      const defaultHeroCards = [
+        {
+          title: 'Web Development',
+          image: 'https://images.unsplash.com/photo-1633356122544-f134324ef6db?auto=format&fit=crop&q=80&w=600&h=400',
+          description: 'Modern responsive web development with cutting-edge technologies',
+          order_index: 1
+        },
+        {
+          title: 'Dashboard & Analytics',
+          image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=600&h=400',
+          description: 'Beautiful data visualization and analytics dashboards',
+          order_index: 2
+        },
+        {
+          title: 'Cloud Platform',
+          image: 'https://images.unsplash.com/photo-1629944112320-37d440d1eec2?auto=format&fit=crop&q=80&w=600&h=400',
+          description: 'Scalable cloud infrastructure and deployment solutions',
+          order_index: 3
+        }
+      ];
+
+      const insertHeroCard = db.prepare(`
+        INSERT INTO hero_cards (title, image, description, order_index)
+        VALUES (@title, @image, @description, @order_index)
+      `);
+      for (const card of defaultHeroCards) {
+        insertHeroCard.run(card);
+      }
+      console.log('[Database] Default hero cards seeded.');
     }
 
     console.log(`[Database] SQLite Database aktif dan siap di: ${dbPath}`);

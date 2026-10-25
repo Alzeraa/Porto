@@ -1,0 +1,125 @@
+{
+  "navbar": {
+    "home": "Home",
+    "expertise": "Expertise",
+    "services": "Services",
+    "projects": "Projects",
+    "about": "About",
+    "contact": "Contact",
+    "cta": "Discuss a Project"
+  },
+  "hero": {
+    "badge": "Professional Website & App Development Services",
+    "title": "Build Amazing Websites & Apps",
+    "subtitle": "Alvaeryn is ready to help you create modern websites, landing pages, and mobile apps—fast, responsive, and professional!",
+    "cta_primary": "Free Consultation Now",
+    "cta_secondary": "View Our Projects",
+    "trusted_by": "Trusted by Startups & Established SMEs",
+    "tech_stack_title": "Technologies We Use"
+  },
+  "expertise": {
+    "label": "Our Expertise",
+    "title": "Why Choose Alvaeryn",
+    "subtitle": "We are committed to excellence, transparency, and measurable results for every project.",
+    "metrics": {
+      "ownership": {
+        "title": "Source Code Ownership",
+        "value": "100%",
+        "description": "You have full access and ownership of all source code we create."
+      },
+      "performance": {
+        "title": "Performance Target",
+        "value": "< 1.2s",
+        "description": "Optimal Core Web Vitals for super fast user experience."
+      },
+      "pricing": {
+        "title": "Transparent Pricing",
+        "value": "Fixed",
+        "description": "Fixed price based on milestones, no hidden costs."
+      }
+    },
+    "capabilities": {
+      "title": "Featured Services",
+      "website": {
+        "title": "Website Development",
+        "description": "Modern corporate websites that build trust, explain services clearly, and convert visitors into quality leads."
+      },
+      "applications": {
+        "title": "Web Applications",
+        "description": "Custom cloud applications that eliminate spreadsheet chaos, secure internal data, and automate multi-department operations."
+      },
+      "systems": {
+        "title": "Business Systems",
+        "description": "Integrated systems for workflow automation, robust database administration, and seamless legacy data integration."
+      }
+    },
+    "cta": "Free Consultation",
+    "cta_text": "Ready to start a new project?"
+  },
+  "services": {
+    "label": "Our Skills",
+    "title": "Services We Provide"
+  },
+  "projects": {
+    "label": "Portfolio",
+    "title": "Our Latest Projects",
+    "subtitle": "Collection of projects we've worked on with full dedication",
+    "view_project": "View Project",
+    "category": "Category"
+  },
+  "team": {
+    "label": "Team",
+    "title": "Great People Behind the Scenes"
+  },
+  "testimonials": {
+    "label": "Testimonials",
+    "title": "What Do They Say?",
+    "subtitle": ""
+  },
+  "pricing": {
+    "label": "Pricing",
+    "title": "Plans That Suit You",
+    "popular": "Most Popular",
+    "order_now": "Order Now"
+  },
+  "contact": {
+    "label": "Contact",
+    "title": "Get in Touch",
+    "subtitle": "Have a project in mind? Let's talk!",
+    "message_success": "Your message sent successfully! We will contact you soon.",
+    "message_error": "An error occurred, please try again!",
+    "sending": "Sending...",
+    "send_button": "Send Message",
+    "location": "Location",
+    "working_hours": "Working Hours",
+    "whatsapp": "WhatsApp",
+    "email": "Email",
+    "github": "GitHub",
+    "chat_now": "Chat Now",
+    "send_email": "Send Email",
+    "view_repository": "View Repository",
+    "send_direct_message": "Send Direct Message",
+    "fill_this_form": "Fill this form and your message will be sent directly to us",
+    "full_name": "Full Name",
+    "service": "Service",
+    "choose_service": "Choose service...",
+    "message": "Message / Project Details",
+    "tell_us_project": "Tell us about your project needs...",
+    "web_design": "🌐 Web Design & Development",
+    "flutter": "📱 Flutter Mobile App (iOS + Android)",
+    "ios": "🍎 iOS App Development",
+    "android": "🤖 Android App Development",
+    "uiux": "🎨 UI/UX App Design",
+    "ecommerce": "🛒 E-Commerce Website",
+    "dashboard": "💻 Dashboard & Admin Panel",
+    "frontend": "🎯 Web Frontend Development",
+    "logo": "📝 Logo & Brand Identity",
+    "other": "✨ Other"
+  },
+  "footer": {
+    "professional_solution": "Professional digital solutions for Indonesian SMEs",
+    "pages": "Pages",
+    "contact_us": "Contact Us",
+    "rights": "© 2026 Alvaeryn. All rights reserved."
+  }
+}

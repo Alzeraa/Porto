@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useScrollAnimation } from '../../hooks/useScrollAnimation';
 import { useScrollFade } from '../../hooks/useScrollFade';
 import { useThemeColors } from '../../hooks/useThemeColors';
+import { useLanguage } from '../../hooks/useLanguage';
 import { API_ENDPOINTS } from '../../config/api';
 
 interface Service {
@@ -60,18 +61,17 @@ const ServiceCard = ({ service, index, theme }: { service: Service; index: numbe
   return (
     <div 
       ref={ref}
-      className={`p-8 rounded-2xl border border-slate-200 hover:shadow-xl hover:-translate-y-2 transition-all animate-on-scroll ${animationClass} ${isVisible ? 'visible' : ''}`}
+      className={`p-8 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:shadow-xl dark:hover:shadow-lg hover:-translate-y-2 transition-all animate-on-scroll ${animationClass} ${isVisible ? 'visible' : ''}`}
       style={{
-        background: 'rgba(255, 255, 255, 0.95)',
         borderColor: theme.accent_color + '20'
       }}
     >
       <div className="text-5xl mb-5">{service.icon}</div>
-      <h3 className="text-xl font-bold text-slate-900 mb-3">{service.title}</h3>
-      <p className="text-slate-600 mb-5">{service.description}</p>
+      <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">{service.title}</h3>
+      <p className="text-slate-600 dark:text-slate-300 mb-5">{service.description}</p>
       <ul className="space-y-2">
         {service.features && service.features.map((feature, j) => (
-          <li key={j} className="flex items-center text-sm text-slate-700">
+          <li key={j} className="flex items-center text-sm text-slate-700 dark:text-slate-400">
             <span className="mr-2" style={{ color: theme.accent_color }}>✓</span>
             {feature}
           </li>
@@ -84,6 +84,7 @@ const ServiceCard = ({ service, index, theme }: { service: Service; index: numbe
 const Services = () => {
   const [services, setServices] = useState<Service[]>(defaultServices);
   const { theme } = useThemeColors();
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetch(API_ENDPOINTS.services)
@@ -100,7 +101,7 @@ const Services = () => {
   const { ref: contentRef, opacity, scale } = useScrollFade();
 
   return (
-    <section id="services" className="py-24 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900">
+    <section id="services" className="py-24 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-950 dark:to-slate-900">
       <div 
         ref={contentRef} 
         className="max-w-6xl mx-auto px-6"
@@ -111,8 +112,8 @@ const Services = () => {
         }}
       >
         <div ref={headerRef} className={`text-center mb-12 animate-on-scroll animate-fade-down ${headerVisible ? 'visible' : ''}`}>
-          <p className="font-semibold uppercase tracking-wide mb-3" style={{ color: theme.accent_color }}>Keahlian Kami</p>
-          <h2 className="text-4xl md:text-5xl font-bold text-white">Layanan yang Kami Sediakan</h2>
+          <p className="font-semibold uppercase tracking-wide mb-3" style={{ color: theme.accent_color }}>{t('services.label')}</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white">{t('services.title')}</h2>
         </div>
         
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">

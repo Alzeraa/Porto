@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { API_ENDPOINTS } from '../config/api';
+import HeroCardsPage from './admin/HeroCardsPage';
 
 interface ContactMessage {
   id: number;
@@ -84,7 +85,7 @@ const AdminPage: React.FC = () => {
   const [loginError, setLoginError] = useState('');
 
   // Dashboard active tab
-  const [activeTab, setActiveTab] = useState<'overview' | 'inbox' | 'profile' | 'projects' | 'services' | 'team' | 'testimonials' | 'pricing' | 'preview'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'inbox' | 'profile' | 'projects' | 'services' | 'team' | 'testimonials' | 'pricing' | 'hero-cards' | 'preview'>('overview');
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
   const [previewKey, setPreviewKey] = useState(0);
 
@@ -961,6 +962,21 @@ const AdminPage: React.FC = () => {
           </button>
 
           <button
+            onClick={() => setActiveTab('hero-cards')}
+            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center justify-between transition-all ${
+              activeTab === 'hero-cards'
+                ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20 font-bold'
+                : 'text-slate-400 hover:text-white hover:bg-slate-900'
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <span>🎨</span>
+              <span>Hero Cards</span>
+            </div>
+            <span className="text-xs opacity-60">(Carousel)</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab('preview')}
             className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center justify-between transition-all ${
               activeTab === 'preview'
@@ -1746,7 +1762,12 @@ const AdminPage: React.FC = () => {
             </div>
           )}
 
-          {/* TAB 9: LIVE PREVIEW */}
+          {/* TAB 9: HERO CARDS */}
+          {activeTab === 'hero-cards' && (
+            <HeroCardsPage />
+          )}
+
+          {/* TAB 10: LIVE PREVIEW */}
           {activeTab === 'preview' && (
             <div className="flex flex-col h-full">
               {/* Header & Controls Toolbar */}

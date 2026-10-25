@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useScrollAnimation } from '../../hooks/useScrollAnimation';
 import { useScrollFade } from '../../hooks/useScrollFade';
 import { useThemeColors } from '../../hooks/useThemeColors';
+import { useLanguage } from '../../hooks/useLanguage';
 import { API_ENDPOINTS } from '../../config/api';
 
 interface TeamMember {
@@ -42,18 +43,17 @@ const TeamMemberCard = ({ member, index, theme }: { member: TeamMember; index: n
   return (
     <div 
       ref={ref}
-      className={`p-8 rounded-2xl shadow-lg border text-center hover:-translate-y-2 transition-all duration-300 animate-on-scroll ${animationClass} ${isVisible ? 'visible' : ''}`}
+      className={`p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-center hover:-translate-y-2 transition-all duration-300 animate-on-scroll ${animationClass} ${isVisible ? 'visible' : ''}`}
       style={{
-        background: 'rgba(255, 255, 255, 0.95)',
         borderColor: theme.accent_color + '20'
       }}
     >
       <div className="w-28 h-28 mx-auto mb-6 rounded-full overflow-hidden border-4" style={{ borderColor: theme.accent_color + '40' }}>
         <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
       </div>
-      <h3 className="font-bold text-xl text-slate-900 mb-2">{member.name}</h3>
+      <h3 className="font-bold text-xl text-slate-900 dark:text-white mb-2">{member.name}</h3>
       <p className="font-semibold text-sm mb-4" style={{ color: theme.accent_color }}>{member.role}</p>
-      <p className="text-slate-600 text-sm">{member.bio}</p>
+      <p className="text-slate-600 dark:text-slate-400 text-sm">{member.bio}</p>
     </div>
   );
 };
@@ -61,6 +61,7 @@ const TeamMemberCard = ({ member, index, theme }: { member: TeamMember; index: n
 const Team = () => {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>(defaultTeam);
   const { theme } = useThemeColors();
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetch(API_ENDPOINTS.team)
@@ -77,7 +78,7 @@ const Team = () => {
   const { ref: contentRef, opacity, scale } = useScrollFade();
 
   return (
-    <section id="team" className="py-24 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900">
+    <section id="team" className="py-24 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-950 dark:to-slate-900">
       <div 
         ref={contentRef} 
         className="max-w-6xl mx-auto px-6"
@@ -88,8 +89,8 @@ const Team = () => {
         }}
       >
         <div ref={headerRef} className={`text-center mb-16 animate-on-scroll animate-rotate ${headerVisible ? 'visible' : ''}`}>
-          <p className="font-semibold uppercase tracking-wide mb-3" style={{ color: theme.accent_color }}>Tim Kami</p>
-          <h2 className="text-4xl md:text-5xl font-bold text-white">Orang-Orang Hebat di Balik Layar</h2>
+          <p className="font-semibold uppercase tracking-wide mb-3" style={{ color: theme.accent_color }}>{t('team.label')}</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white">{t('team.title')}</h2>
         </div>
         
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">

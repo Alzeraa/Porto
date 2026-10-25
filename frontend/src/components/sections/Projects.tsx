@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useScrollAnimation } from '../../hooks/useScrollAnimation';
 import { useScrollFade } from '../../hooks/useScrollFade';
 import { useThemeColors } from '../../hooks/useThemeColors';
+import { useLanguage } from '../../hooks/useLanguage';
 import { API_ENDPOINTS } from '../../config/api';
 
 interface Project {
@@ -81,7 +82,7 @@ const defaultProjects: Project[] = [
   },
 ];
 
-const ProjectCard = ({ project, index, theme }: { project: Project; index: number; theme: any }) => {
+const ProjectCard = ({ project, index, theme, t }: { project: Project; index: number; theme: any; t: any }) => {
   const { ref, isVisible } = useScrollAnimation(0.1);
   
   const animationClass = ['animate-fade-up', 'animate-rotate', 'animate-scale-up'][index % 3];
@@ -89,9 +90,8 @@ const ProjectCard = ({ project, index, theme }: { project: Project; index: numbe
   return (
     <div 
       ref={ref}
-      className={`rounded-2xl shadow-lg border overflow-hidden group hover:shadow-2xl transition-all duration-300 animate-on-scroll ${animationClass} ${isVisible ? 'visible' : ''}`}
+      className={`rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden group hover:shadow-2xl dark:hover:shadow-lg transition-all duration-300 animate-on-scroll ${animationClass} ${isVisible ? 'visible' : ''}`}
       style={{
-        background: 'rgba(255, 255, 255, 0.95)',
         borderColor: theme.accent_color + '20',
         boxShadow: `0 20px 25px -5px ${theme.accent_color}10`
       }}
@@ -105,15 +105,15 @@ const ProjectCard = ({ project, index, theme }: { project: Project; index: numbe
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
           {project.link && (
             <a href={project.link} target="_blank" rel="noopener noreferrer" className="px-4 py-2 text-white rounded-full text-sm font-semibold hover:opacity-80 transition-opacity" style={{ background: theme.primary_light }}>
-              Lihat Proyek
+              {t('projects.view_project')}
             </a>
           )}
         </div>
       </div>
       <div className="p-6">
         <span className="inline-block text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: theme.accent_color }}>{project.category}</span>
-        <h3 className="text-xl font-bold text-slate-900 mb-3">{project.title}</h3>
-        <p className="text-slate-600 text-sm mb-4 line-clamp-3">{project.description}</p>
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">{project.title}</h3>
+        <p className="text-slate-600 dark:text-slate-400 text-sm mb-4 line-clamp-3">{project.description}</p>
         <div className="flex flex-wrap gap-2">
           {project.tech && project.tech.map((t, j) => {
             const iconMap: Record<string, string> = {
@@ -132,7 +132,7 @@ const ProjectCard = ({ project, index, theme }: { project: Project; index: numbe
               'Figma': 'devicon-figma-plain colored',
             };
             return (
-              <span key={j} className="px-2 py-1 text-slate-700 rounded-full text-xs font-medium flex items-center gap-1" style={{ background: theme.accent_color + '15' }}>
+              <span key={j} className="px-2 py-1 text-slate-700 dark:text-slate-300 rounded-full text-xs font-medium flex items-center gap-1" style={{ background: theme.accent_color + '15' }}>
                 <i className={iconMap[t] || ''} style={{ fontSize: '0.875rem' }}></i>
                 {t}
               </span>
@@ -147,6 +147,7 @@ const ProjectCard = ({ project, index, theme }: { project: Project; index: numbe
 const Projects = () => {
   const [projects, setProjects] = useState<Project[]>(defaultProjects);
   const { theme } = useThemeColors();
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetch(API_ENDPOINTS.projects)
@@ -163,7 +164,7 @@ const Projects = () => {
   const { ref: contentRef, opacity, scale } = useScrollFade();
 
   return (
-    <section id="projects" className="py-24 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900">
+    <section id="projects" className="py-24 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-950 dark:to-slate-900">
       <div 
         ref={contentRef} 
         className="max-w-6xl mx-auto px-6"
@@ -175,13 +176,13 @@ const Projects = () => {
       >
         <div ref={headerRef} className={`text-center mb-16 animate-on-scroll animate-scale-up ${headerVisible ? 'visible' : ''}`}>
           <span className="inline-block px-4 py-1 text-sm font-semibold uppercase tracking-wide mb-3 rounded-full" style={{ background: theme.accent_color + '20', color: theme.accent_color }}>Portfolio</span>
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-3">Proyek Terbaru Kami</h2>
-          <p className="text-gray-400 max-w-2xl mx-auto">Kumpulan proyek yang telah kami kerjakan dengan penuh dedikasi</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-3">{t('projects.title')}</h2>
+          <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">{t('projects.subtitle')}</p>
         </div>
         
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {projects.map((project, i) => (
-            <ProjectCard key={project.id || i} project={project} index={i} theme={theme} />
+            <ProjectCard key={project.id || i} project={project} index={i} theme={theme} t={t} />
           ))}
         </div>
       </div>

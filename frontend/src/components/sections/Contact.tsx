@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useScrollAnimation } from '../../hooks/useScrollAnimation';
 import { useScrollFade } from '../../hooks/useScrollFade';
-import { useThemeColors } from '../../hooks/useThemeColors';
+import { useLanguage } from '../../hooks/useLanguage';
 import { API_ENDPOINTS } from '../../config/api';
 
 const Contact = () => {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -30,14 +31,14 @@ const Contact = () => {
       const result = await response.json();
       
       if (result.status === 'success') {
-        alert('Pesan kamu berhasil dikirim! Kami akan segera menghubungi kamu.');
+        alert(t('contact.message_success'));
         setFormData({ name: '', email: '', whatsapp: '', service: '', message: '' });
       } else {
-        alert('Terjadi kesalahan, silakan coba lagi!');
+        alert(t('contact.message_error'));
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      alert('Terjadi kesalahan, silakan coba lagi!');
+      alert(t('contact.message_error'));
     } finally {
       setIsLoading(false);
     }
@@ -48,14 +49,14 @@ const Contact = () => {
   };
 
   const topContacts = [
-    { icon: '📍', title: 'Lokasi', value: 'Malang, Indonesia' },
-    { icon: '⏰', title: 'Jam Kerja', value: 'Senin - Jumat: 09:00 - 18:00' },
+    { icon: '📍', title: t('contact.location'), value: 'Malang, Indonesia' },
+    { icon: '⏰', title: t('contact.working_hours'), value: 'Senin - Jumat: 09:00 - 18:00' },
   ];
 
   const bottomContacts = [
-    { icon: '💬', title: 'WhatsApp', value: '+62 881-8411-915', link: 'https://wa.me/628818411915?text=Halo%2C%20saya%20ingin%20konsultasi%20tentang%20layanan%20Anda.', label: 'Chat Sekarang', popular: true },
-    { icon: '✉️', title: 'Email', value: 'vaeran2904@gmail.com', link: 'mailto:vaeran2904@gmail.com', label: 'Kirim Email', popular: false },
-    { icon: '💻', title: 'GitHub', value: '@Alvaeryn', link: 'https://github.com/Alvaeryn', label: 'Lihat Repository', popular: false },
+    { icon: '💬', title: t('contact.whatsapp'), value: '+62 881-8411-915', link: 'https://wa.me/628818411915?text=Halo%2C%20saya%20ingin%20konsultasi%20tentang%20layanan%20Anda.', label: t('contact.chat_now'), popular: true },
+    { icon: '✉️', title: t('contact.email'), value: 'vaeran2904@gmail.com', link: 'mailto:vaeran2904@gmail.com', label: t('contact.send_email'), popular: false },
+    { icon: '💻', title: t('contact.github'), value: '@Alvaeryn', link: 'https://github.com/Alvaeryn', label: t('contact.view_repository'), popular: false },
   ];
 
   const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation(0.1);
@@ -65,7 +66,7 @@ const Contact = () => {
   const { ref: contentRef, opacity, scale } = useScrollFade();
 
   return (
-    <section id="contact" className="py-24 bg-gradient-to-br from-slate-50 to-cyan-50 dark:from-slate-950 dark:to-slate-900">
+    <section id="contact" className="py-24 bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-slate-900">
       <div 
         ref={contentRef} 
         className="max-w-6xl mx-auto px-6"
@@ -77,14 +78,14 @@ const Contact = () => {
       >
         {/* Header */}
         <div ref={headerRef} className={`text-center mb-16 animate-on-scroll animate-fade-right ${headerVisible ? 'visible' : ''}`}>
-          <span className="inline-block px-6 py-2 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 rounded-full text-sm font-semibold uppercase tracking-wide mb-6">
-            Hubungi Kami
+          <span className="inline-block px-6 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-semibold uppercase tracking-wide mb-6">
+            {t('contact.label')}
           </span>
           <h2 className="text-4xl md:text-6xl font-bold text-slate-900 dark:text-white mb-6">
-            Mari Wujudkan Proyek Anda
+            {t('contact.title')}
           </h2>
           <p className="text-slate-600 dark:text-slate-400 text-lg max-w-2xl mx-auto">
-            Konsultasi gratis untuk membahas kebutuhan digital bisnis Anda
+            {t('contact.subtitle')}
           </p>
         </div>
 
@@ -106,13 +107,13 @@ const Contact = () => {
               key={i}
               className={`p-7 rounded-2xl border text-center transition-all hover:scale-105 ${
                 contact.popular
-                  ? 'bg-gradient-to-br from-cyan-600 to-teal-600 border-cyan-500 text-white shadow-xl'
+                  ? 'bg-gradient-to-br from-blue-600 to-blue-700 border-blue-500 text-white shadow-xl'
                   : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800'
               }`}
             >
               <div className="text-3xl mb-4">{contact.icon}</div>
               <h3 className="text-base font-bold mb-2">{contact.title}</h3>
-              <p className={`text-sm mb-5 ${contact.popular ? 'text-cyan-100' : 'text-slate-600 dark:text-slate-400'}`}>{contact.value}</p>
+              <p className={`text-sm mb-5 ${contact.popular ? 'text-blue-100' : 'text-slate-600 dark:text-slate-400'}`}>{contact.value}</p>
               {contact.link && contact.label && (
                 <a
                   href={contact.link}
@@ -120,8 +121,8 @@ const Contact = () => {
                   rel="noopener noreferrer"
                   className={`inline-block px-8 py-3 rounded-full text-sm font-semibold transition ${
                     contact.popular
-                      ? 'bg-white text-cyan-700 hover:bg-cyan-50'
-                      : 'bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-100 dark:hover:bg-cyan-900/50'
+                      ? 'bg-white text-blue-700 hover:bg-blue-50'
+                      : 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50'
                   }`}
                 >
                   {contact.label}
@@ -135,16 +136,16 @@ const Contact = () => {
         <div ref={formRef} className={`max-w-3xl mx-auto animate-on-scroll animate-fade-left ${formVisible ? 'visible' : ''}`}>
           <div className="bg-white dark:bg-slate-900 p-10 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-lg">
             <h3 className="text-center font-bold text-slate-900 dark:text-white mb-6 text-2xl">
-              📩 Kirim Pesan Langsung
+              {t('contact.send_direct_message')}
             </h3>
             <p className="text-center text-sm text-slate-600 dark:text-slate-400 mb-8">
-              Isi form di bawah dan pesan Anda akan terkirim langsung ke kami
+              {t('contact.fill_this_form')}
             </p>
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid md:grid-cols-2 gap-5">
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                    Nama Lengkap *
+                    {t('contact.full_name')} *
                   </label>
                   <input
                     type="text"
@@ -153,7 +154,7 @@ const Contact = () => {
                     value={formData.name}
                     onChange={handleChange}
                     placeholder="Nama Anda"
-                    className="w-full px-5 py-3 text-base text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    className="w-full px-5 py-3 text-base text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
@@ -167,14 +168,14 @@ const Contact = () => {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="email@contoh.com"
-                    className="w-full px-5 py-3 text-base text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    className="w-full px-5 py-3 text-base text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
               <div className="grid md:grid-cols-2 gap-5">
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                    No. WhatsApp
+                    {t('contact.whatsapp')}
                   </label>
                   <input
                     type="tel"
@@ -182,36 +183,36 @@ const Contact = () => {
                     value={formData.whatsapp}
                     onChange={handleChange}
                     placeholder="08xx-xxxx-xxxx"
-                    className="w-full px-5 py-3 text-base text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    className="w-full px-5 py-3 text-base text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                    Layanan
+                    {t('contact.service')}
                   </label>
                   <select
                     name="service"
                     value={formData.service}
                     onChange={handleChange}
-                    className="w-full px-5 py-3 text-base text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    className="w-full px-5 py-3 text-base text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="">Pilih layanan...</option>
-                    <option value="web-design">🌐 Web Design & Development</option>
-                    <option value="flutter">📱 Flutter Mobile App (iOS + Android)</option>
-                    <option value="ios">🍎 iOS App Development</option>
-                    <option value="android">🤖 Android App Development</option>
-                    <option value="uiux">🎨 UI/UX App Design</option>
-                    <option value="ecommerce">🛒 E-Commerce Website</option>
-                    <option value="dashboard">💻 Dashboard & Admin Panel</option>
-                    <option value="frontend">🎯 Web Frontend Development</option>
-                    <option value="logo">📝 Logo & Brand Identity</option>
-                    <option value="other">✨ Lainnya</option>
+                    <option value="">{t('contact.choose_service')}</option>
+                    <option value="web-design">{t('contact.web_design')}</option>
+                    <option value="flutter">{t('contact.flutter')}</option>
+                    <option value="ios">{t('contact.ios')}</option>
+                    <option value="android">{t('contact.android')}</option>
+                    <option value="uiux">{t('contact.uiux')}</option>
+                    <option value="ecommerce">{t('contact.ecommerce')}</option>
+                    <option value="dashboard">{t('contact.dashboard')}</option>
+                    <option value="frontend">{t('contact.frontend')}</option>
+                    <option value="logo">{t('contact.logo')}</option>
+                    <option value="other">{t('contact.other')}</option>
                   </select>
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                  Pesan / Detail Project *
+                  {t('contact.message')} *
                 </label>
                 <textarea
                   name="message"
@@ -219,8 +220,8 @@ const Contact = () => {
                   value={formData.message}
                   onChange={handleChange}
                   rows={4}
-                  placeholder="Ceritakan kebutuhan project Anda..."
-                  className="w-full px-5 py-3 text-base text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-vertical"
+                  placeholder={t('contact.tell_us_project')}
+                  className="w-full px-5 py-3 text-base text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 resize-vertical"
                 />
               </div>
               <button
@@ -232,7 +233,7 @@ const Contact = () => {
                     : 'bg-gradient-to-r from-slate-900 to-slate-800 dark:from-cyan-600 dark:to-teal-500 text-white hover:shadow-lg hover:scale-105'
                 }`}
               >
-                {isLoading ? '⏳ Mengirim...' : '✉️ Kirim Pesan'}
+                {isLoading ? `⏳ ${t('contact.sending')}` : `✉️ ${t('contact.send_button')}`}
               </button>
             </form>
           </div>

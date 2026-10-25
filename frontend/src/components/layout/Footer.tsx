@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { navigateTo, navigateToSection } from '../../utils/navigation';
 import { useThemeColors } from '../../hooks/useThemeColors';
+import { useLanguage } from '../../hooks/useLanguage';
 import { API_ENDPOINTS } from '../../config/api';
 
 interface MenuItem {
@@ -11,6 +12,7 @@ interface MenuItem {
 
 const Footer = () => {
   const { theme } = useThemeColors();
+  const { t } = useLanguage();
   const [brand, setBrand] = useState({ name: 'Alvaeryn', logo_url: '/Final-Logo.png' });
 
   useEffect(() => {
@@ -28,11 +30,11 @@ const Footer = () => {
   }, []);
 
   const menuItems: MenuItem[] = [
-    { name: 'Home', type: 'section', target: '#home' },
-    { name: 'Layanan', type: 'section', target: '#services' },
-    { name: 'Portfolio', type: 'section', target: '#projects' },
-    { name: 'Testimoni', type: 'section', target: '#testimonials' },
-    { name: 'Harga', type: 'section', target: '#pricing' },
+    { name: t('navbar.home'), type: 'section', target: '#home' },
+    { name: t('navbar.services'), type: 'section', target: '#services' },
+    { name: t('navbar.projects'), type: 'section', target: '#projects' },
+    { name: t('testimonials.label'), type: 'section', target: '#testimonials' },
+    { name: t('pricing.label'), type: 'section', target: '#pricing' },
     { name: 'FAQ', type: 'page', target: '/faq' },
   ];
 
@@ -54,7 +56,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-white text-slate-700 py-12 border-t border-slate-200">
+    <footer className="bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 py-12 border-t border-slate-200 dark:border-slate-700">
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid md:grid-cols-4 gap-8 mb-12">
           {/* Brand */}
@@ -65,15 +67,15 @@ const Footer = () => {
                 {brand.name}
               </div>
             </div>
-            <p className="text-xs text-slate-500 mb-4">
-              Solusi digital profesional untuk UMKM Indonesia
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
+              {t('footer.professional_solution')}
             </p>
           </div>
 
           {/* Menu */}
           <div>
-            <h4 className="text-xs font-bold text-slate-800 mb-4 uppercase">
-              Halaman
+            <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 mb-4 uppercase">
+              {t('footer.pages')}
             </h4>
             <ul className="space-y-2">
               {menuItems.map((item, i) => (
@@ -81,7 +83,7 @@ const Footer = () => {
                   <button
                     type="button"
                     onClick={() => handleMenuClick(item.type, item.target)}
-                    className="text-xs text-slate-600 hover:transition"
+                    className="text-xs text-slate-600 dark:text-slate-400 hover:transition"
                     style={{ color: 'inherit' }}
                     onMouseEnter={(e) => (e.currentTarget.style.color = theme.accent_color)}
                     onMouseLeave={(e) => (e.currentTarget.style.color = 'inherit')}
@@ -95,13 +97,13 @@ const Footer = () => {
 
           {/* Contact */}
           <div>
-            <h4 className="text-xs font-bold text-slate-800 mb-4 uppercase">
-              Kontak
+            <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 mb-4 uppercase">
+              {t('footer.contact_us')}
             </h4>
             <ul className="space-y-2">
               {contactItems.map((item, i) => (
                 <li key={i}>
-                  <a href={item.href} target="_blank" rel="noopener noreferrer" className="text-xs text-slate-600" style={{ color: 'inherit' }}
+                  <a href={item.href} target="_blank" rel="noopener noreferrer" className="text-xs text-slate-600 dark:text-slate-400" style={{ color: 'inherit' }}
                     onMouseEnter={(e) => (e.currentTarget.style.color = theme.accent_color)}
                     onMouseLeave={(e) => (e.currentTarget.style.color = 'inherit')}
                   >
@@ -114,9 +116,9 @@ const Footer = () => {
         </div>
 
         {/* Copyright */}
-        <div className="pt-8 border-t border-slate-200 text-center">
-          <p className="text-xs text-slate-500">
-            © {new Date().getFullYear()} {brand.name}. All rights reserved.
+        <div className="pt-8 border-t border-slate-200 dark:border-slate-700 text-center">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            {t('footer.rights')}
           </p>
         </div>
       </div>

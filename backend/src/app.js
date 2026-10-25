@@ -16,6 +16,7 @@ const teamRoutes = require('./routes/teamRoutes');
 const testimonialsRoutes = require('./routes/testimonialsRoutes');
 const pricingRoutes = require('./routes/pricingRoutes');
 const themeRoutes = require('./routes/themeRoutes');
+const heroCardsRoutes = require('./routes/heroCardsRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -53,6 +54,7 @@ app.use('/api/team', teamRoutes);
 app.use('/api/testimonials', testimonialsRoutes);
 app.use('/api/pricing', pricingRoutes);
 app.use('/api/theme', themeRoutes);
+app.use('/api/hero-cards', heroCardsRoutes);
 
 // Start server
 app.listen(PORT, () => {

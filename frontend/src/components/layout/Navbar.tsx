@@ -1,13 +1,9 @@
 import { useState, useEffect } from 'react';
 import { navigateTo, navigateToSection } from '../../utils/navigation';
-import { useThemeStore } from '../../store/themeStore';
-import { useThemeColors } from '../../hooks/useThemeColors';
-import { useUIStore } from '../../store/uiStore';
 import { API_ENDPOINTS } from '../../config/api';
-
-interface NavbarProps {
-  currentPath: string;
-}
+import { useThemeStore } from '../../store/themeStore';
+import { useLanguage } from '../../hooks/useLanguage';
+import LanguageSwitcher from '../common/LanguageSwitcher';
 
 interface MenuItem {
   name: string;
@@ -15,11 +11,12 @@ interface MenuItem {
   target: string;
 }
 
-const Navbar = ({ currentPath }: NavbarProps) => {
+const Navbar = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [brand, setBrand] = useState({ name: 'ALVAERYN', logo_url: '/Final-Logo.png' });
+  const [activeSection, setActiveSection] = useState('home');
   const { darkMode, toggleDarkMode } = useThemeStore();
-  const { theme } = useThemeColors();
-  const { isMobileMenuOpen, toggleMobileMenu, closeMobileMenu } = useUIStore();
-  const [brand, setBrand] = useState({ name: 'Alvaeryn', logo_url: '/Final-Logo.png' });
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetch(API_ENDPOINTS.profile)
@@ -27,7 +24,7 @@ const Navbar = ({ currentPath }: NavbarProps) => {
       .then((res) => {
         if (res.status === 'success' && res.data) {
           setBrand({
-            name: res.data.name || 'Alvaeryn',
+            name: (res.data.name || 'ALVAERYN').toUpperCase(),
             logo_url: res.data.logo_url || '/Final-Logo.png'
           });
         }
@@ -36,12 +33,12 @@ const Navbar = ({ currentPath }: NavbarProps) => {
   }, []);
 
   const menuItems: MenuItem[] = [
-    { name: 'Home', type: 'section', target: '#home' },
-    { name: 'Layanan', type: 'section', target: '#services' },
-    { name: 'Portfolio', type: 'section', target: '#projects' },
-    { name: 'Testimoni', type: 'section', target: '#testimonials' },
-    { name: 'Harga', type: 'section', target: '#pricing' },
-    { name: 'FAQ', type: 'page', target: '/faq' },
+    { name: t('navbar.home'), type: 'section', target: '#home' },
+    { name: t('navbar.expertise'), type: 'section', target: '#expertise' },
+    { name: t('navbar.services'), type: 'section', target: '#services' },
+    { name: t('navbar.projects'), type: 'section', target: '#projects' },
+    { name: t('navbar.about'), type: 'section', target: '#about' },
+    { name: t('navbar.contact'), type: 'section', target: '#contact' },
   ];
 
   const handleMenuClick = (type: 'section' | 'page', target: string) => {
@@ -49,150 +46,170 @@ const Navbar = ({ currentPath }: NavbarProps) => {
       navigateTo(target);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
+      const sectionId = target.replace('#', '');
+      setActiveSection(sectionId);
       navigateToSection(target);
     }
-
-    closeMobileMenu();
+    setIsMobileMenuOpen(false);
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 px-3 pt-3">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center rounded-full bg-white/95 backdrop-blur-lg border border-slate-200/80 shadow-sm px-3 md:px-7 py-2 md:py-3">
-          {/* Logo */}
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-[#0B132B]/90 backdrop-blur-md border-b border-slate-200 dark:border-[#1E293B]/40 transition-all duration-200">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-8 h-20 flex items-center justify-between relative">
+        {/* Vertical guide lines (hidden on mobile) */}
+        <div className="absolute left-[58%] top-0 bottom-0 w-[1px] bg-slate-300 dark:bg-[#1E293B]/40 pointer-events-none hidden md:block"></div>
+        <div className="absolute right-[10%] top-0 bottom-0 w-[1px] bg-slate-300 dark:bg-[#1E293B]/40 pointer-events-none hidden md:block"></div>
+
+        {/* Logo & Brand */}
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            setActiveSection('home');
+            navigateToSection('#home');
+          }}
+          className="flex items-center gap-3.5 focus:outline-none hover:opacity-80 transition"
+        >
+          <div className="flex items-center justify-center w-8 h-8 select-none">
+            <img src={brand.logo_url} alt="Logo" className="w-full h-full object-contain" />
+          </div>
+          <div className="flex flex-col">
+            <span className="font-sans font-extrabold text-slate-900 dark:text-white tracking-[0.24em] text-[14px] sm:text-[16px] leading-tight">
+              {brand.name}
+            </span>
+            <span className="font-sans text-[7px] sm:text-[8.5px] text-slate-600 dark:text-[#8E9DB5] font-semibold tracking-[0.24em] uppercase">
+              DIGITAL STUDIO
+            </span>
+          </div>
+        </button>
+
+        {/* Desktop Navigation Menu (Centered) */}
+        <nav className="hidden md:flex items-center gap-8 text-[13.5px] font-sans font-medium absolute left-1/2 transform -translate-x-1/2">
+          {menuItems.map((item, idx) => (
+            <button
+              key={idx}
+              onClick={(e) => {
+                e.preventDefault();
+                handleMenuClick(item.type, item.target);
+              }}
+              className={`relative py-1 transition-colors tracking-wide group ${
+                activeSection === item.target.replace('#', '')
+                  ? 'text-[#2563EB] font-semibold'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              {item.name}
+              {activeSection === item.target.replace('#', '') && (
+                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#2563EB] rounded-full"></span>
+              )}
+            </button>
+          ))}
+        </nav>
+
+        {/* Desktop CTA Button */}
+        <div className="hidden md:flex items-center gap-3">
+          {/* Language Switcher */}
+          <LanguageSwitcher />
+
+          {/* Dark Mode Toggle */}
+          <button
+            onClick={toggleDarkMode}
+            className="p-2.5 rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 transition-all duration-200 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+            title={darkMode ? 'Light Mode' : 'Dark Mode'}
+          >
+            {darkMode ? (
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+              </svg>
+            )}
+          </button>
+
+          {/* CTA Button */}
           <button
             onClick={(e) => {
               e.preventDefault();
-              if (currentPath === '/faq') {
-                navigateTo('/');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                closeMobileMenu();
-                return;
-              }
-
-              navigateToSection('#home');
+              handleMenuClick('section', '#contact');
             }}
-            className="flex items-center gap-2 hover:scale-105 transition"
+            className="inline-flex items-center justify-center px-6 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-sans text-xs font-semibold tracking-wide transition-all duration-150 active:scale-[0.98] shadow-md shadow-blue-600/25"
           >
-            <img src={brand.logo_url || '/Final-Logo.png'} alt={`${brand.name} Logo`} className="h-10 w-10 md:h-12 md:w-12 object-contain rounded-full" />
-            <span className="text-lg md:text-2xl font-bold" style={{ color: theme.primary_color }}>
-              {brand.name}
-            </span>
+            <span>{t('navbar.cta')}</span>
           </button>
+        </div>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-5 lg:gap-6">
-            {menuItems.map((item) => (
+        {/* Mobile Menu Button */}
+        <button
+          className="md:hidden p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-white/5 transition"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          <svg
+            className="w-6 h-6 text-slate-900 dark:text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            {isMobileMenuOpen ? (
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            ) : (
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            )}
+          </svg>
+        </button>
+      </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden border-t border-slate-200 dark:border-[#1E293B]/40 bg-white dark:bg-[#0B132B] px-6 py-4">
+          <div className="flex flex-col gap-3">
+            {menuItems.map((item, idx) => (
               <button
-                key={item.name}
-                onClick={(e) => {
-                  e.preventDefault();
+                key={idx}
+                onClick={() => {
                   handleMenuClick(item.type, item.target);
                 }}
-                className={`text-sm font-medium transition ${
-                  currentPath === item.target
-                    ? 'dark:text-white'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-                }`}
-                style={currentPath === item.target ? { color: theme.accent_color } : {}}
+                className="text-left px-4 py-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg transition font-sans text-sm"
               >
                 {item.name}
               </button>
             ))}
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                handleMenuClick('section', '#contact');
-              }}
-              className="ml-2 px-5 py-2.5 text-white rounded-full text-sm font-semibold hover:shadow-lg transition-all"
-              style={{ 
-                background: `linear-gradient(to right, ${theme.primary_color}, ${theme.primary_light})`,
-                boxShadow: `0 0 15px ${theme.primary_light}40`
-              }}
-            >
-              Konsultasi Gratis
-            </button>
-            {/* Dark Mode Toggle */}
+            
+            {/* Dark Mode Toggle Mobile */}
             <button
               onClick={toggleDarkMode}
-              className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 transition"
-              aria-label="Toggle dark mode"
+              className="text-left px-4 py-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg transition font-sans text-sm flex items-center gap-2"
             >
-              {darkMode ? <span className="text-xl">☀️</span> : <span className="text-xl">🌙</span>}
+              {darkMode ? '☀️ Light Mode' : '🌙 Dark Mode'}
+            </button>
+
+            {/* Language Switcher Mobile */}
+            <div className="px-4 py-2">
+              <LanguageSwitcher />
+            </div>
+
+            <button
+              onClick={() => {
+                handleMenuClick('section', '#contact');
+              }}
+              className="mt-3 w-full px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-sans text-sm font-semibold transition-all"
+            >
+              {t('navbar.cta')}
             </button>
           </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-            onClick={toggleMobileMenu}
-          >
-            <svg
-              className="w-6 h-6 text-slate-700 dark:text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              {isMobileMenuOpen ? (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              ) : (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              )}
-            </svg>
-          </button>
         </div>
-
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden mt-3 bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden">
-            <div className="flex flex-col gap-3 items-center py-4">
-              {menuItems.map((item) => (
-                <button
-                  key={item.name}
-                  onClick={() => {
-                    handleMenuClick(item.type, item.target);
-                  }}
-                  className={`font-medium py-2 transition text-xl text-slate-700 hover:text-slate-900`}
-                  style={currentPath === item.target ? { color: theme.accent_color } : {}}
-                >
-                  {item.name}
-                </button>
-              ))}
-              <div className="flex flex-col gap-4 items-center w-full pt-4 border-t border-slate-200">
-                <button
-                  onClick={toggleDarkMode}
-                  className="p-3 rounded-full bg-slate-100 hover:bg-slate-200 transition"
-                  aria-label="Toggle dark mode"
-                >
-                  {darkMode ? <span className="text-2xl">☀️</span> : <span className="text-2xl">🌙</span>}
-                </button>
-                <button
-                  onClick={() => {
-                    handleMenuClick('section', '#contact');
-                  }}
-                  className="px-8 py-3 text-white rounded-full font-semibold hover:shadow-lg transition-all text-lg"
-                  style={{ 
-                    background: `linear-gradient(to right, ${theme.primary_color}, ${theme.primary_light})`
-                  }}
-                >
-                  Konsultasi Gratis
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </nav>
+      )}
+    </header>
   );
 };
 

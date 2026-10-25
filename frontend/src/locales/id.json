@@ -1,0 +1,125 @@
+{
+  "navbar": {
+    "home": "Beranda",
+    "expertise": "Keahlian",
+    "services": "Layanan",
+    "projects": "Proyek",
+    "about": "Tentang",
+    "contact": "Kontak",
+    "cta": "Diskusi Project"
+  },
+  "hero": {
+    "badge": "Jasa Pembuatan Website & Aplikasi Profesional",
+    "title": "Bangun Website & Aplikasi Yang Memukau",
+    "subtitle": "Alvaeryn siap membantu kamu buat website, landing page, dan aplikasi mobile modern—cepat, responsif, dan profesional!",
+    "cta_primary": "Konsultasi Gratis Sekarang",
+    "cta_secondary": "Lihat Proyek Kami",
+    "trusted_by": "Dipercaya oleh Startup & UMKM Mapan",
+    "tech_stack_title": "Teknologi yang Kami Gunakan"
+  },
+  "expertise": {
+    "label": "Keahlian Kami",
+    "title": "Mengapa Memilih Alvaeryn",
+    "subtitle": "Kami berkomitmen pada excellence, transparency, dan hasil yang terukur untuk setiap project.",
+    "metrics": {
+      "ownership": {
+        "title": "Source Code Ownership",
+        "value": "100%",
+        "description": "Anda memiliki akses penuh dan ownership dari semua source code yang kami buat."
+      },
+      "performance": {
+        "title": "Performance Target",
+        "value": "< 1.2s",
+        "description": "Core Web Vitals optimal untuk pengalaman pengguna yang super cepat."
+      },
+      "pricing": {
+        "title": "Transparent Pricing",
+        "value": "Fixed",
+        "description": "Harga tetap berdasarkan milestone, tidak ada biaya tersembunyi."
+      }
+    },
+    "capabilities": {
+      "title": "Layanan Unggulan",
+      "website": {
+        "title": "Website Development",
+        "description": "Website korporat modern yang membangun kepercayaan, menjelaskan layanan dengan jelas, dan mengkonversi visitor menjadi leads berkualitas."
+      },
+      "applications": {
+        "title": "Web Applications",
+        "description": "Custom aplikasi cloud yang menghilangkan spreadsheet chaos, mengamankan data internal, dan mengotomasi operasi multi-departemen."
+      },
+      "systems": {
+        "title": "Business Systems",
+        "description": "Sistem terintegrasi untuk workflow automation, admin database yang robust, dan integrasi legacy data yang seamless."
+      }
+    },
+    "cta": "Konsultasi Gratis",
+    "cta_text": "Siap untuk memulai project baru?"
+  },
+  "services": {
+    "label": "Keahlian Kami",
+    "title": "Layanan yang Kami Sediakan"
+  },
+  "projects": {
+    "label": "Portfolio",
+    "title": "Proyek Terbaru Kami",
+    "subtitle": "Kumpulan proyek yang telah kami kerjakan dengan penuh dedikasi",
+    "view_project": "Lihat Proyek",
+    "category": "Kategori"
+  },
+  "team": {
+    "label": "Tim",
+    "title": "Orang-Orang Hebat di Balik Layar"
+  },
+  "testimonials": {
+    "label": "Testimoni",
+    "title": "Apa Kata Mereka?",
+    "subtitle": ""
+  },
+  "pricing": {
+    "label": "Harga",
+    "title": "Paket yang Sesuai untuk Kamu",
+    "popular": "Paling Populer",
+    "order_now": "Pesan Sekarang"
+  },
+  "contact": {
+    "label": "Kontak",
+    "title": "Mari Wujudkan Proyek Anda",
+    "subtitle": "Konsultasi gratis untuk membahas kebutuhan digital bisnis Anda",
+    "message_success": "Pesan kamu berhasil dikirim! Kami akan segera menghubungi kamu.",
+    "message_error": "Terjadi kesalahan, silakan coba lagi!",
+    "sending": "Mengirim...",
+    "send_button": "Kirim Pesan",
+    "location": "Lokasi",
+    "working_hours": "Jam Kerja",
+    "whatsapp": "WhatsApp",
+    "email": "Email",
+    "github": "GitHub",
+    "chat_now": "Chat Sekarang",
+    "send_email": "Kirim Email",
+    "view_repository": "Lihat Repository",
+    "send_direct_message": "📩 Kirim Pesan Langsung",
+    "fill_this_form": "Isi form di bawah dan pesan Anda akan terkirim langsung ke kami",
+    "full_name": "Nama Lengkap",
+    "service": "Layanan",
+    "choose_service": "Pilih layanan...",
+    "message": "Pesan / Detail Project",
+    "tell_us_project": "Ceritakan kebutuhan project Anda...",
+    "web_design": "🌐 Web Design & Development",
+    "flutter": "📱 Flutter Mobile App (iOS + Android)",
+    "ios": "🍎 iOS App Development",
+    "android": "🤖 Android App Development",
+    "uiux": "🎨 UI/UX App Design",
+    "ecommerce": "🛒 E-Commerce Website",
+    "dashboard": "💻 Dashboard & Admin Panel",
+    "frontend": "🎯 Web Frontend Development",
+    "logo": "📝 Logo & Brand Identity",
+    "other": "✨ Lainnya"
+  },
+  "footer": {
+    "professional_solution": "Solusi digital profesional untuk UMKM Indonesia",
+    "pages": "Halaman",
+    "contact_us": "Kontak",
+    "rights": "© 2026 Alvaeryn. Semua hak dilindungi."
+  }
+}
