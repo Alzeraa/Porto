@@ -44,6 +44,7 @@ export const API_ENDPOINTS = {
   testimonials: `${API_BASE_URL}/api/testimonials`,
   pricing: `${API_BASE_URL}/api/pricing`,
   upload: `${API_BASE_URL}/api/upload`,
+  heroCards: `${API_BASE_URL}/api/hero-cards`,
 };
 
 // Debug logging

@@ -33,7 +33,7 @@ const Navbar = () => {
   }, []);
 
   const menuItems: MenuItem[] = [
-    { name: t('navbar.home'), type: 'section', target: '/' },
+    { name: t('navbar.home'), type: 'page', target: '/home' },
     { name: t('navbar.services'), type: 'page', target: '/services' },
     { name: t('navbar.projects'), type: 'page', target: '/projects' },
     { name: t('navbar.about'), type: 'page', target: '/about' },
@@ -62,7 +62,8 @@ const Navbar = () => {
           onClick={(e) => {
             e.preventDefault();
             setActiveSection('home');
-            navigateToSection('#home');
+            navigateTo('/');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
           className="flex items-center gap-3.5 focus:outline-none hover:opacity-80 transition"
         >

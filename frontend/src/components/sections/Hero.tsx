@@ -71,7 +71,7 @@ const Hero = () => {
       .catch((err) => console.log('Using default profile', err));
 
     // Fetch hero cards from API
-    fetch(`${API_ENDPOINTS.theme.split('/theme')[0]}/hero-cards`)
+    fetch(API_ENDPOINTS.heroCards)
       .then((res) => res.json())
       .then((res) => {
         if (res.status === 'success' && Array.isArray(res.data)) {

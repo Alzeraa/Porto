@@ -3,8 +3,6 @@ import { useScrollAnimation } from '../hooks/useScrollAnimation';
 import { useScrollFade } from '../hooks/useScrollFade';
 import { useLanguage } from '../hooks/useLanguage';
 import { API_ENDPOINTS } from '../config/api';
-import Navbar from '../components/layout/Navbar';
-import Footer from '../components/layout/Footer';
 
 const ContactPage = () => {
   const { t } = useLanguage();
@@ -56,7 +54,6 @@ const ContactPage = () => {
 
   return (
     <>
-      <Navbar />
       <div
         ref={contentRef}
         style={{
@@ -238,7 +235,6 @@ const ContactPage = () => {
           </div>
         </section>
       </div>
-      <Footer />
     </>
   );
 };

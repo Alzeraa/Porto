@@ -1,9 +1,9 @@
 module.exports = {
   apps: [{
     name: "alzera-porto",
-    cwd: "C:/Reavlenia Arezha/Porto/frontend",
+    cwd: "C:/laragon/www/Porto-terbaru/frontend",
     script: "node_modules/vite/bin/vite.js",
-    args: "--host 127.0.0.1",
+    args: "--host",
     interpreter: "node",
     autorestart: true,
     restart_delay: 3000,

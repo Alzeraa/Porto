@@ -4,8 +4,6 @@ import { useScrollFade } from '../hooks/useScrollFade';
 import { useThemeColors } from '../hooks/useThemeColors';
 import { useLanguage } from '../hooks/useLanguage';
 import { API_ENDPOINTS } from '../config/api';
-import Navbar from '../components/layout/Navbar';
-import Footer from '../components/layout/Footer';
 
 interface Service {
   id?: number;
@@ -109,7 +107,6 @@ const ServicesPage = () => {
 
   return (
     <>
-      <Navbar />
       <section className="pt-32 pb-24 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-950 dark:to-slate-900">
         <div 
           ref={contentRef} 
@@ -133,7 +130,6 @@ const ServicesPage = () => {
           </div>
         </div>
       </section>
-      <Footer />
     </>
   );
 };

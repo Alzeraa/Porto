@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { useScrollFade } from '../hooks/useScrollFade';
 import { useThemeColors } from '../hooks/useThemeColors';
 import { navigateToSection } from '../utils/navigation';
-import Navbar from '../components/layout/Navbar';
-import Footer from '../components/layout/Footer';
 
 interface ProjectDetail {
   id?: number;
@@ -48,7 +46,6 @@ const ProjectDetailPage = ({ projectId }: { projectId: string }) => {
 
   return (
     <>
-      <Navbar />
       <div
         ref={contentRef}
         style={{
@@ -168,7 +165,6 @@ const ProjectDetailPage = ({ projectId }: { projectId: string }) => {
           </div>
         </section>
       </div>
-      <Footer />
     </>
   );
 };

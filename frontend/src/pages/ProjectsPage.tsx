@@ -5,8 +5,7 @@ import { useThemeColors } from '../hooks/useThemeColors';
 import { useLanguage } from '../hooks/useLanguage';
 import { navigateToSection } from '../utils/navigation';
 import { API_ENDPOINTS } from '../config/api';
-import Navbar from '../components/layout/Navbar';
-import Footer from '../components/layout/Footer';
+
 
 interface Project {
   id?: number;
@@ -150,7 +149,6 @@ const ProjectsPage = () => {
 
   return (
     <>
-      <Navbar />
       <section className="pt-32 pb-24 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-950 dark:to-slate-900">
         <div 
           ref={contentRef} 
@@ -174,7 +172,6 @@ const ProjectsPage = () => {
           </div>
         </div>
       </section>
-      <Footer />
     </>
   );
 };

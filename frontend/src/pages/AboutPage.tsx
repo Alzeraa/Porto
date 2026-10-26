@@ -4,8 +4,6 @@ import { useScrollFade } from '../hooks/useScrollFade';
 import { useThemeColors } from '../hooks/useThemeColors';
 import { useLanguage } from '../hooks/useLanguage';
 import { API_ENDPOINTS } from '../config/api';
-import Navbar from '../components/layout/Navbar';
-import Footer from '../components/layout/Footer';
 
 interface TeamMember {
   id?: number;
@@ -85,7 +83,6 @@ const AboutPage = () => {
 
   return (
     <>
-      <Navbar />
       <div
         ref={contentRef}
         style={{
@@ -201,7 +198,6 @@ const AboutPage = () => {
           </div>
         </section>
       </div>
-      <Footer />
     </>
   );
 };
