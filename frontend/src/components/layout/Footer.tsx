@@ -1,94 +1,115 @@
 import { useState, useEffect } from 'react';
-import { navigateTo, navigateToSection } from '../../utils/navigation';
-import { useThemeColors } from '../../hooks/useThemeColors';
-import { useLanguage } from '../../hooks/useLanguage';
+import { navigateTo } from '../../utils/navigation';
 import { API_ENDPOINTS } from '../../config/api';
 
-interface MenuItem {
-  name: string;
-  type: 'section' | 'page';
-  target: string;
+interface ProfileData {
+  name?: string;
+  logo_url?: string;
+  whatsapp?: string;
+  email?: string;
 }
 
 const Footer = () => {
-  const { theme } = useThemeColors();
-  const { t } = useLanguage();
-  const [brand, setBrand] = useState({ name: 'Alvaeryn', logo_url: '/Final-Logo.png' });
+  const [profile, setProfile] = useState<ProfileData>({
+    name: 'ALZERA',
+    logo_url: '/Final-Logo.png',
+    whatsapp: '628818411915',
+    email: 'contact@alzera.web.id',
+  });
 
   useEffect(() => {
     fetch(API_ENDPOINTS.profile)
-      .then((res) => res.json())
+      .then((r) => r.json())
       .then((res) => {
         if (res.status === 'success' && res.data) {
-          setBrand({
-            name: res.data.name || 'Alvaeryn',
-            logo_url: res.data.logo_url || '/Final-Logo.png'
-          });
+          setProfile((prev) => ({ ...prev, ...res.data }));
         }
       })
       .catch(() => {});
   }, []);
 
-  const menuItems: MenuItem[] = [
-    { name: t('navbar.home'), type: 'section', target: '#home' },
-    { name: t('navbar.services'), type: 'section', target: '#services' },
-    { name: t('navbar.projects'), type: 'section', target: '#projects' },
-    { name: t('testimonials.label'), type: 'section', target: '#testimonials' },
-    { name: t('pricing.label'), type: 'section', target: '#pricing' },
-    { name: 'FAQ', type: 'page', target: '/faq' },
-  ];
+  const brandName = (profile.name || 'ALZERA').toUpperCase();
+  const waNumber = (profile.whatsapp || '628818411915').replace(/\D/g, '');
+  const email = profile.email || 'contact@alzera.web.id';
+  const domain = 'alzera.web.id';
 
-  const contactItems = [
-    { name: 'WhatsApp', href: 'https://wa.me/628818411915' },
-    { name: 'Email', href: 'mailto:vaeran2904@gmail.com' },
-    { name: 'Telegram', href: 'https://t.me/alvaeryn' },
-    { name: 'GitHub', href: 'https://github.com/Alvaeryn' },
-  ];
-
-  const handleMenuClick = (type: 'section' | 'page', target: string) => {
-    if (type === 'page') {
-      navigateTo(target);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
-    navigateToSection(target);
+  const handleNav = (path: string) => {
+    navigateTo(path);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
-    <footer className="bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 py-12 border-t border-slate-200 dark:border-slate-700">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="grid md:grid-cols-4 gap-8 mb-12">
-          {/* Brand */}
-          <div className="md:col-span-2">
-            <div className="flex items-center gap-3 mb-3">
-              <img src={brand.logo_url || '/Final-Logo.png'} alt={`${brand.name} Logo`} className="h-14 w-14" />
-              <div className="text-xl font-bold" style={{ color: theme.primary_color }}>
-                {brand.name}
-              </div>
+    <footer className="w-full bg-[#0B1320] text-slate-400 border-t border-[#1E293B]/60">
+
+      {/* ── Main footer grid ── */}
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-8 py-14">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
+
+          {/* Brand column */}
+          <div className="md:col-span-4 flex flex-col gap-4">
+            {/* Logo + name */}
+            <div className="flex items-center gap-3">
+              <img
+                src={profile.logo_url || '/Final-Logo.png'}
+                alt={brandName}
+                className="w-7 h-7 object-contain"
+              />
+              <span className="font-extrabold text-white tracking-[0.2em] text-[15px]">
+                {brandName}
+              </span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
-              {t('footer.professional_solution')}
+
+            {/* Tagline */}
+            <p className="text-sm text-slate-400 leading-relaxed max-w-xs">
+              Digital solutions for modern businesses. Transforming ideas into high-impact web applications, websites, and business systems.
             </p>
           </div>
 
-          {/* Menu */}
-          <div>
-            <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 mb-4 uppercase">
-              {t('footer.pages')}
+          {/* Spacer */}
+          <div className="hidden md:block md:col-span-1" />
+
+          {/* Services */}
+          <div className="md:col-span-2 flex flex-col gap-4">
+            <h4 className="font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-white">
+              Services
             </h4>
-            <ul className="space-y-2">
-              {menuItems.map((item, i) => (
-                <li key={i}>
+            <ul className="flex flex-col gap-2.5">
+              {[
+                'Web Engineering',
+                'Cloud Architecture',
+                'UI/UX System Design',
+                'Enterprise Systems',
+              ].map((item) => (
+                <li key={item}>
                   <button
-                    type="button"
-                    onClick={() => handleMenuClick(item.type, item.target)}
-                    className="text-xs text-slate-600 dark:text-slate-400 hover:transition"
-                    style={{ color: 'inherit' }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = theme.accent_color)}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = 'inherit')}
+                    onClick={() => handleNav('/services')}
+                    className="text-sm text-slate-400 hover:text-white transition-colors duration-150 text-left"
                   >
-                    {item.name}
+                    {item}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Company */}
+          <div className="md:col-span-2 flex flex-col gap-4">
+            <h4 className="font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-white">
+              Company
+            </h4>
+            <ul className="flex flex-col gap-2.5">
+              {[
+                { label: 'About Us', path: '/about' },
+                { label: 'Case Studies', path: '/projects' },
+                { label: 'Careers', path: '/contact' },
+                { label: 'Privacy Policy', path: '/' },
+              ].map((item) => (
+                <li key={item.label}>
+                  <button
+                    onClick={() => handleNav(item.path)}
+                    className="text-sm text-slate-400 hover:text-white transition-colors duration-150 text-left"
+                  >
+                    {item.label}
                   </button>
                 </li>
               ))}
@@ -96,35 +117,62 @@ const Footer = () => {
           </div>
 
           {/* Contact */}
-          <div>
-            <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 mb-4 uppercase">
-              {t('footer.contact_us')}
+          <div className="md:col-span-3 flex flex-col gap-4">
+            <h4 className="font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-white">
+              Contact
             </h4>
-            <ul className="space-y-2">
-              {contactItems.map((item, i) => (
-                <li key={i}>
-                  <a href={item.href} target="_blank" rel="noopener noreferrer" className="text-xs text-slate-600 dark:text-slate-400" style={{ color: 'inherit' }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = theme.accent_color)}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = 'inherit')}
-                  >
-                    {item.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            <div className="flex flex-col gap-3 text-sm">
+              <div>
+                <p className="text-slate-500 text-xs mb-0.5">WhatsApp &amp; Inquiries:</p>
+                <a
+                  href={`https://wa.me/${waNumber}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-white hover:text-blue-400 transition-colors duration-150"
+                >
+                  +62 ({brandName}-DIGITAL)
+                </a>
+              </div>
+              <div>
+                <p className="text-slate-500 text-xs mb-0.5">Direct Support:</p>
+                <a
+                  href={`mailto:${email}`}
+                  className="font-semibold text-white hover:text-blue-400 transition-colors duration-150"
+                >
+                  {email}
+                </a>
+              </div>
+            </div>
           </div>
-        </div>
 
-        {/* Copyright */}
-        <div className="pt-8 border-t border-slate-200 dark:border-slate-700 text-center">
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            {t('footer.rights')}
-          </p>
         </div>
       </div>
+
+      {/* ── Bottom bar ── */}
+      <div className="border-t border-[#1E293B]/60">
+        <div className="max-w-[1280px] mx-auto px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-xs text-slate-500">
+            © {new Date().getFullYear()} {brandName} ({domain}). All rights reserved.
+          </p>
+          <div className="flex items-center gap-5">
+            <button
+              onClick={() => handleNav('/')}
+              className="text-xs text-slate-500 hover:text-white transition-colors duration-150"
+            >
+              Privacy Policy
+            </button>
+            <button
+              onClick={() => handleNav('/contact')}
+              className="text-xs text-slate-500 hover:text-white transition-colors duration-150"
+            >
+              Contact
+            </button>
+          </div>
+        </div>
+      </div>
+
     </footer>
   );
 };
 
 export default Footer;
-

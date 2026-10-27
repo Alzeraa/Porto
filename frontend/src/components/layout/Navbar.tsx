@@ -13,7 +13,7 @@ interface MenuItem {
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [brand, setBrand] = useState({ name: 'ALVAERYN', logo_url: '/Final-Logo.png' });
+  const [brand, setBrand] = useState({ name: 'ALZERA', logo_url: '/Final-Logo.png' });
   const [activeSection, setActiveSection] = useState('home');
   const { darkMode, toggleDarkMode } = useThemeStore();
   const { t } = useLanguage();
@@ -51,11 +51,11 @@ const Navbar = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-[#0B132B]/90 backdrop-blur-md border-b border-slate-200 dark:border-[#1E293B]/40 transition-all duration-200">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-[#0B132B]/90 backdrop-blur-md border-b border-[#1E293B]/40 transition-all duration-200">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8 h-20 flex items-center justify-between relative">
         {/* Vertical guide lines (hidden on mobile) */}
-        <div className="absolute left-[58%] top-0 bottom-0 w-[1px] bg-slate-300 dark:bg-[#1E293B]/40 pointer-events-none hidden md:block"></div>
-        <div className="absolute right-[10%] top-0 bottom-0 w-[1px] bg-slate-300 dark:bg-[#1E293B]/40 pointer-events-none hidden md:block"></div>
+        <div className="absolute left-[58%] top-0 bottom-0 w-[1px] bg-[#1E293B]/40 pointer-events-none hidden md:block"></div>
+        <div className="absolute right-[10%] top-0 bottom-0 w-[1px] bg-[#1E293B]/40 pointer-events-none hidden md:block"></div>
 
         {/* Logo & Brand */}
         <button
@@ -71,10 +71,10 @@ const Navbar = () => {
             <img src={brand.logo_url} alt="Logo" className="w-full h-full object-contain" />
           </div>
           <div className="flex flex-col">
-            <span className="font-sans font-extrabold text-slate-900 dark:text-white tracking-[0.24em] text-[14px] sm:text-[16px] leading-tight">
+            <span className="font-sans font-extrabold text-white tracking-[0.24em] text-[14px] sm:text-[16px] leading-tight">
               {brand.name}
             </span>
-            <span className="font-sans text-[7px] sm:text-[8.5px] text-slate-600 dark:text-[#8E9DB5] font-semibold tracking-[0.24em] uppercase">
+            <span className="font-sans text-[7px] sm:text-[8.5px] text-[#8E9DB5] font-semibold tracking-[0.24em] uppercase">
               DIGITAL STUDIO
             </span>
           </div>
@@ -92,7 +92,7 @@ const Navbar = () => {
               className={`relative py-1 transition-colors tracking-wide group ${
                 activeSection === item.target.replace('#', '')
                   ? 'text-[#2563EB] font-semibold'
-                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                  : 'text-slate-300 hover:text-white'
               }`}
             >
               {item.name}
@@ -111,7 +111,7 @@ const Navbar = () => {
           {/* Dark Mode Toggle */}
           <button
             onClick={toggleDarkMode}
-            className="p-2.5 rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 transition-all duration-200 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+            className="p-2.5 rounded-lg hover:bg-white/10 transition-all duration-200 text-slate-300 hover:text-white"
             title={darkMode ? 'Light Mode' : 'Dark Mode'}
           >
             {darkMode ? (
@@ -139,11 +139,11 @@ const Navbar = () => {
 
         {/* Mobile Menu Button */}
         <button
-          className="md:hidden p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-white/5 transition"
+          className="md:hidden p-2 rounded-lg hover:bg-white/5 transition"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           <svg
-            className="w-6 h-6 text-slate-900 dark:text-white"
+            className="w-6 h-6 text-white"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -169,7 +169,7 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-200 dark:border-[#1E293B]/40 bg-white dark:bg-[#0B132B] px-6 py-4">
+        <div className="md:hidden border-t border-[#1E293B]/40 bg-[#0B132B] px-6 py-4">
           <div className="flex flex-col gap-3">
             {menuItems.map((item, idx) => (
               <button
@@ -177,7 +177,7 @@ const Navbar = () => {
                 onClick={() => {
                   handleMenuClick(item.type, item.target);
                 }}
-                className="text-left px-4 py-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg transition font-sans text-sm"
+                className="text-left px-4 py-2 text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition font-sans text-sm"
               >
                 {item.name}
               </button>
@@ -186,7 +186,7 @@ const Navbar = () => {
             {/* Dark Mode Toggle Mobile */}
             <button
               onClick={toggleDarkMode}
-              className="text-left px-4 py-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg transition font-sans text-sm flex items-center gap-2"
+              className="text-left px-4 py-2 text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition font-sans text-sm flex items-center gap-2"
             >
               {darkMode ? '☀️ Light Mode' : '🌙 Dark Mode'}
             </button>

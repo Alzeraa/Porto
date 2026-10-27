@@ -84,7 +84,7 @@ const Hero = () => {
 
 
   return (
-    <section id="home" className="relative w-full bg-white dark:bg-[#080D1D] pt-16 pb-20 lg:pt-20 lg:pb-28 border-b border-slate-200 dark:border-[#1E293B]/60 overflow-hidden">
+    <section id="home" className="relative w-full bg-[#080D1D] pt-16 pb-20 lg:pt-20 lg:pb-28 border-b border-[#1E293B]/60 overflow-hidden">
       {/* Subtle Blueprint Vertical Guidelines */}
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8 absolute inset-0 pointer-events-none hidden md:block">
         <div className="w-full h-full relative">
@@ -106,17 +106,17 @@ const Hero = () => {
           {/* Left Editorial Content Column */}
           <div className="lg:col-span-6 flex flex-col items-start z-10">
             {/* Monospace Badge */}
-            <span className="font-mono text-[11px] text-blue-500 dark:text-[#3B82F6] tracking-[0.2em] font-semibold uppercase mb-6">
+            <span className="font-mono text-[11px] text-blue-500 tracking-[0.2em] font-semibold uppercase mb-6">
               {profile.badge || t('hero.badge')}
             </span>
 
             {/* Main Headline */}
-            <h1 className="font-sans font-extrabold text-4xl sm:text-6xl lg:text-[70px] tracking-tight text-slate-900 dark:text-white leading-[1.08] mb-6">
+            <h1 className="font-sans font-extrabold text-4xl sm:text-6xl lg:text-[70px] tracking-tight text-white leading-[1.08] mb-6">
               {profile.title || t('hero.title')}
             </h1>
 
             {/* Subtitle Description */}
-            <p className="font-body text-base sm:text-[17px] text-slate-600 dark:text-[#8E9DB5] leading-relaxed max-w-lg mb-9">
+            <p className="font-body text-base sm:text-[17px] text-[#8E9DB5] leading-relaxed max-w-lg mb-9">
               {profile.subtitle || t('hero.subtitle')}
             </p>
 
