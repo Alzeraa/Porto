@@ -24,7 +24,7 @@ const Navbar = () => {
       .then((res) => {
         if (res.status === 'success' && res.data) {
           setBrand({
-            name: (res.data.name || 'ALVAERYN').toUpperCase(),
+            name: (res.data.name || 'ALZERA').toUpperCase(),
             logo_url: res.data.logo_url || '/Final-Logo.png'
           });
         }

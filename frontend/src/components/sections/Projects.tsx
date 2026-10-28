@@ -22,7 +22,7 @@ const defaultProjects: Project[] = [
     description: 'Platform travel untuk booking paket wisata dengan antarmuka modern dan integrasi pembayaran Midtrans.',
     tech: ['Next.js', 'React', 'TypeScript', 'Tailwind', 'Node.js', 'Express', 'MySQL'],
     image: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&q=80&w=800',
-    link: 'https://github.com/Alvaeryn/Travel-App',
+    link: 'https://github.com/ALZERA/Travel-App',
   },
   {
     title: 'Absensi Siswa Berbasis QRCODE',
@@ -30,7 +30,7 @@ const defaultProjects: Project[] = [
     description: 'Sistem absensi modern dengan face recognition dan QR code untuk SD.',
     tech: ['React', 'Express', 'MySQL', 'JavaScript'],
     image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=800',
-    link: 'https://github.com/Alvaeryn/Absensi-Siswa-Berbasis-QRCODE',
+    link: 'https://github.com/ALZERA/Absensi-Siswa-Berbasis-QRCODE',
   },
   {
     title: 'Portfolio Website',
@@ -38,7 +38,7 @@ const defaultProjects: Project[] = [
     description: 'Website portfolio modern dengan React, TypeScript, dan Tailwind CSS.',
     tech: ['React', 'TypeScript', 'Tailwind', 'Node.js'],
     image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800',
-    link: 'https://github.com/Alvaeryn/Porto',
+    link: 'https://github.com/ALZERA/Porto',
   },
   {
     title: 'Aplikasi Perkuliahan',

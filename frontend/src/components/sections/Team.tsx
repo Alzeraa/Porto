@@ -15,7 +15,7 @@ interface TeamMember {
 
 const defaultTeam: TeamMember[] = [
   {
-    name: 'Alvaeryn',
+    name: 'ALZERA',
     role: 'Founder & Full Stack Developer',
     bio: 'Spesialis dalam pengembangan web dan aplikasi mobile dengan pengalaman lebih dari 2 tahun.',
     image: '/founder.jpeg'

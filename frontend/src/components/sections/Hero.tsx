@@ -33,14 +33,14 @@ interface HeroCard {
 }
 
 const defaultProfile: ProfileData = {
-  name: 'Alvaeryn',
+  name: 'ALZERA',
   badge: 'Jasa Pembuatan Website & Aplikasi Profesional',
   title: 'Bangun Website & Aplikasi Yang Memukau',
-  subtitle: 'Alvaeryn siap membantu kamu buat website, landing page, dan aplikasi mobile modern—cepat, responsif, dan profesional!',
+  subtitle: 'ALZERA siap membantu kamu buat website, landing page, dan aplikasi mobile modern—cepat, responsif, dan profesional!',
   bio: 'Digital agency & software engineering studio',
   whatsapp: '081234567890',
   email: 'admin@gmail.com',
-  github: 'https://github.com/Alvaeryn',
+  github: 'https://github.com/ALZERA',
   linkedin: 'https://linkedin.com',
   logo_url: '/Final-Logo.png',
   cta_primary_text: 'Konsultasi Gratis Sekarang',

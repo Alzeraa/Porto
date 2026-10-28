@@ -25,7 +25,7 @@ const About = () => {
           </div>
           <div ref={rightRef} className={`animate-on-scroll animate-fade-right ${rightVisible ? 'visible' : ''}`}>
             <p className="text-lg text-gray-300 mb-6">
-              Halo! Kami adalah Alvaeryn, tim pengembang full stack yang bersemangat dalam menciptakan solusi yang elegan dan efisien. 
+              Halo! Kami adalah ALZERA, tim pengembang full stack yang bersemangat dalam menciptakan solusi yang elegan dan efisien. 
               Kami mengkhususkan diri dalam membangun aplikasi web modern dengan teknologi terbaru.
             </p>
             <p className="text-lg text-gray-300">

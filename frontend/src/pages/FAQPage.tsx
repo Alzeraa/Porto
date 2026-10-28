@@ -68,7 +68,7 @@ const FAQPage = ({ darkMode }: FAQPageProps) => {
           </h1>
           <p className="text-lg text-slate-600 dark:text-slate-400">
             Halaman ini berisi jawaban cepat seputar layanan, proses kerja, revisi,
-            dan cara memulai project bersama Alvaeryn.
+            dan cara memulai project bersama ALZERA.
           </p>
         </div>
 

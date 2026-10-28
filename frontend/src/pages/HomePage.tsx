@@ -484,7 +484,7 @@ const HomePage = () => {
               Frequently Asked Questions
             </h2>
             <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
-              Clear, straightforward answers regarding commissioning work with Alvaeryn.
+              Clear, straightforward answers regarding commissioning work with ALZERA.
             </p>
           </div>
 

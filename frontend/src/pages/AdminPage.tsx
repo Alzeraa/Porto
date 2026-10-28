@@ -78,7 +78,7 @@ interface PricingItem {
 
 const AdminPage: React.FC = () => {
   // Auth state
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem('alvaeryn_admin_token'));
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem('alzera_admin_token'));
   const [loginEmail, setLoginEmail] = useState('admin@gmail.com');
   const [loginPassword, setLoginPassword] = useState('admin123');
   const [loginLoading, setLoginLoading] = useState(false);
@@ -112,13 +112,13 @@ const AdminPage: React.FC = () => {
   const [pricingForm, setPricingForm] = useState({ name: '', price: '', popular: false, featuresInput: '' });
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [profile, setProfile] = useState<ProfileForm>({
-    name: 'Alvaeryn',
+    name: 'ALZERA',
     badge: 'Jasa Pembuatan Website & Aplikasi Profesional',
     title: 'Bangun Website & Aplikasi Yang Memukau',
-    subtitle: 'Alvaeryn siap membantu kamu buat website, landing page, dan aplikasi mobile modern—cepat, responsif, dan profesional!',
+    subtitle: 'ALZERA siap membantu kamu buat website, landing page, dan aplikasi mobile modern—cepat, responsif, dan profesional!',
     whatsapp: '081234567890',
     email: 'admin@gmail.com',
-    github: 'https://github.com/Alvaeryn',
+    github: 'https://github.com/ALZERA',
     linkedin: 'https://linkedin.com',
     logo_url: '/Final-Logo.png',
     cta_primary_text: 'Konsultasi Gratis Sekarang',
@@ -175,8 +175,8 @@ const AdminPage: React.FC = () => {
 
       const data = await res.json();
       if (data.status === 'success' && data.data?.token) {
-        localStorage.setItem('alvaeryn_admin_token', data.data.token);
-        localStorage.setItem('alvaeryn_admin_user', JSON.stringify(data.data.admin));
+        localStorage.setItem('alzera_admin_token', data.data.token);
+        localStorage.setItem('alzera_admin_user', JSON.stringify(data.data.admin));
         setToken(data.data.token);
         showNotice('Login berhasil! Selamat datang di Admin Dashboard.');
       } else {
@@ -190,8 +190,8 @@ const AdminPage: React.FC = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('alvaeryn_admin_token');
-    localStorage.removeItem('alvaeryn_admin_user');
+    localStorage.removeItem('alzera_admin_token');
+    localStorage.removeItem('alzera_admin_user');
     setToken(null);
   };
 
@@ -696,7 +696,7 @@ const AdminPage: React.FC = () => {
             <div className="w-16 h-16 bg-gradient-to-tr from-cyan-500 to-teal-400 rounded-2xl mx-auto flex items-center justify-center text-3xl font-black shadow-lg shadow-cyan-500/30 mb-4">
               A
             </div>
-            <h1 className="text-2xl font-bold tracking-tight">Alvaeryn Admin Portal</h1>
+            <h1 className="text-2xl font-bold tracking-tight">ALZERA Admin Portal</h1>
             <p className="text-slate-400 text-sm mt-1">Masuk untuk mengelola data portofolio dinamis</p>
           </div>
 
@@ -809,7 +809,7 @@ const AdminPage: React.FC = () => {
             A
           </div>
           <div>
-            <h2 className="font-bold text-white text-base leading-tight">Alvaeryn Admin</h2>
+            <h2 className="font-bold text-white text-base leading-tight">ALZERA Admin</h2>
             <div className="flex items-center gap-2 text-xs text-slate-400">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               SQLite Engine (portfolio.db)
@@ -1002,7 +1002,7 @@ const AdminPage: React.FC = () => {
               <div className="mb-8">
                 <h2 className="text-2xl font-bold text-white">Dashboard Ringkasan</h2>
                 <p className="text-slate-400 text-sm mt-1">
-                  Kontrol penuh konten dinamis website portofolio Alvaeryn.
+                  Kontrol penuh konten dinamis website portofolio ALZERA.
                 </p>
               </div>
 

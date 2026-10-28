@@ -56,7 +56,7 @@ const Contact = () => {
   const bottomContacts = [
     { icon: '💬', title: t('contact.whatsapp'), value: '+62 881-8411-915', link: 'https://wa.me/628818411915?text=Halo%2C%20saya%20ingin%20konsultasi%20tentang%20layanan%20Anda.', label: t('contact.chat_now'), popular: true },
     { icon: '✉️', title: t('contact.email'), value: 'vaeran2904@gmail.com', link: 'mailto:vaeran2904@gmail.com', label: t('contact.send_email'), popular: false },
-    { icon: '💻', title: t('contact.github'), value: '@Alvaeryn', link: 'https://github.com/Alvaeryn', label: t('contact.view_repository'), popular: false },
+    { icon: '💻', title: t('contact.github'), value: '@ALZERA', link: 'https://github.com/ALZERA', label: t('contact.view_repository'), popular: false },
   ];
 
   const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation(0.1);

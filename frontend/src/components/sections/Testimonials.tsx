@@ -32,7 +32,7 @@ const defaultTestimonials: Testimonial[] = [
   {
     name: 'Ahmad Fauzi',
     role: 'CEO Tech Company',
-    content: 'Kerja sama dengan Alvaeryn sangat menyenangkan. Komunikasi dan hasilnya sesuai ekspektasi!',
+    content: 'Kerja sama dengan ALZERA sangat menyenangkan. Komunikasi dan hasilnya sesuai ekspektasi!',
     rating: 5,
     photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200&h=200'
   }

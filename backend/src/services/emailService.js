@@ -15,16 +15,21 @@ exports.sendContactNotification = async (contactData) => {
     await resend.emails.send({
       from: 'Portfolio <onboarding@resend.dev>',
       to: adminEmail,
-      subject: `Pesan Baru dari Portfolio - ${contactData.name}`,
+      subject: `New Project Inquiry — ${contactData.name}`,
       html: `
-        <h2>Pesan Baru dari Portfolio</h2>
-        <p><strong>Nama:</strong> ${contactData.name}</p>
-        <p><strong>Email:</strong> ${contactData.email}</p>
-        <p><strong>WhatsApp:</strong> ${contactData.whatsapp || 'Tidak diisi'}</p>
-        <p><strong>Layanan:</strong> ${contactData.service || 'Tidak diisi'}</p>
-        <p><strong>Pesan:</strong></p>
-        <p>${contactData.message}</p>
-      `
+        <h2>New Project Inquiry from ALZERA Contact Form</h2>
+        <table style="border-collapse:collapse;width:100%;font-family:sans-serif;font-size:14px;">
+          <tr><td style="padding:6px 12px;font-weight:bold;background:#f1f5f9;">Name</td><td style="padding:6px 12px;">${contactData.name}</td></tr>
+          <tr><td style="padding:6px 12px;font-weight:bold;background:#f1f5f9;">Business / Org</td><td style="padding:6px 12px;">${contactData.businessOrg || '—'}</td></tr>
+          <tr><td style="padding:6px 12px;font-weight:bold;background:#f1f5f9;">Email</td><td style="padding:6px 12px;">${contactData.email}</td></tr>
+          <tr><td style="padding:6px 12px;font-weight:bold;background:#f1f5f9;">WhatsApp</td><td style="padding:6px 12px;">${contactData.whatsapp || '—'}</td></tr>
+          <tr><td style="padding:6px 12px;font-weight:bold;background:#f1f5f9;">Service Needed</td><td style="padding:6px 12px;">${contactData.service || '—'}</td></tr>
+          <tr><td style="padding:6px 12px;font-weight:bold;background:#f1f5f9;">Budget Range</td><td style="padding:6px 12px;">${contactData.budgetRange || '—'}</td></tr>
+          <tr><td style="padding:6px 12px;font-weight:bold;background:#f1f5f9;">Timeline</td><td style="padding:6px 12px;">${contactData.timeline || '—'}</td></tr>
+          <tr><td style="padding:6px 12px;font-weight:bold;background:#f1f5f9;">Reference URL</td><td style="padding:6px 12px;">${contactData.referenceUrl || '—'}</td></tr>
+          <tr><td style="padding:6px 12px;font-weight:bold;background:#f1f5f9;vertical-align:top;">Description</td><td style="padding:6px 12px;">${contactData.message}</td></tr>
+        </table>
+      `,
     });
     
     console.log('Notification email sent');
