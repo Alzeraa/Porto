@@ -165,6 +165,69 @@ const initDatabase = () => {
       );
     `);
 
+    // 11. Tabel FAQ Items
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS faq_items (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        question TEXT NOT NULL,
+        answer TEXT NOT NULL,
+        order_index INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // 12. Tabel About Sections (untuk halaman AboutPage)
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS about_sections (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        type TEXT NOT NULL, -- 'core_foundations', 'process_stages', 'studio_ethics', 'faq', 'service_caps', 'pragmatic_points', 'client_segments'
+        title TEXT NOT NULL,
+        subtitle TEXT DEFAULT '',
+        items TEXT NOT NULL, -- JSON array
+        order_index INTEGER DEFAULT 0
+      );
+    `);
+
+    // 13. Tabel Translations (untuk multi-bahasa support)
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS translations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        key TEXT UNIQUE NOT NULL,
+        language TEXT NOT NULL DEFAULT 'id',
+        text TEXT NOT NULL,
+        source_key TEXT,
+        source_language TEXT DEFAULT 'en',
+        is_manual INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Index untuk performa
+    db.exec(`
+      CREATE INDEX IF NOT EXISTS idx_translations_key ON translations(key);
+      CREATE INDEX IF NOT EXISTS idx_translations_language ON translations(language);
+      CREATE INDEX IF NOT EXISTS idx_translations_key_language ON translations(key, language);
+    `);
+
+    // 14. Tabel Translation Caches (untuk caching hasil translate)
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS translation_caches (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        source_text TEXT NOT NULL,
+        source_language TEXT NOT NULL,
+        target_language TEXT NOT NULL,
+        translated_text TEXT NOT NULL,
+        provider TEXT DEFAULT 'libretranslate',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Index untuk cache lookup
+    db.exec(`
+      CREATE INDEX IF NOT EXISTS idx_trans_cache_lookup ON translation_caches(source_text, source_language, target_language);
+    `);
+
     // Seed Admin Default jika belum ada (admin@gmail.com / admin123)
     const checkAdmin = db.prepare('SELECT id FROM admins WHERE email = ?').get('admin@gmail.com');
     if (!checkAdmin) {
@@ -438,6 +501,133 @@ const initDatabase = () => {
         insertHeroCard.run(card);
       }
       console.log('[Database] Default hero cards seeded.');
+    }
+
+    // Seed FAQ jika masih kosong
+    const countFAQ = db.prepare('SELECT count(*) as count FROM faq_items').get().count;
+    if (countFAQ === 0) {
+      const defaultFAQ = [
+        {
+          question: 'Berapa lama proses pembuatan website atau aplikasi?',
+          answer: 'Tergantung scope project. Landing page biasanya 3-7 hari, company profile sekitar 1-2 minggu, dan aplikasi custom bisa 3-8 minggu tergantung fitur.',
+          order_index: 1
+        },
+        {
+          question: 'Apakah saya bisa request desain yang sesuai brand saya?',
+          answer: 'Bisa. Warna, gaya visual, tipografi, sampai struktur halaman bisa disesuaikan dengan brand bisnis Anda agar terlihat lebih profesional dan konsisten.',
+          order_index: 2
+        },
+        {
+          question: 'Apakah website bisa dibuka di HP dan laptop?',
+          answer: 'Bisa. Semua website dibuat responsif sehingga tetap nyaman dipakai di mobile, tablet, maupun desktop.',
+          order_index: 3
+        },
+        {
+          question: 'Apakah ada revisi setelah project selesai?',
+          answer: 'Ada. Saya biasanya menyediakan sesi revisi sesuai paket atau kesepakatan awal agar hasil akhir benar-benar sesuai kebutuhan Anda.',
+          order_index: 4
+        },
+        {
+          question: 'Kalau belum punya hosting dan domain, apakah bisa dibantu?',
+          answer: 'Bisa. Saya bisa bantu rekomendasi, setup, sampai proses deploy agar website siap online tanpa Anda perlu ribet teknis.',
+          order_index: 5
+        },
+        {
+          question: 'Bagaimana cara mulai konsultasi project?',
+          answer: 'Tinggal hubungi lewat WhatsApp atau form kontak. Kirim gambaran kebutuhan project, target bisnis, dan referensi jika ada, lalu saya bantu arahkan solusi yang paling cocok.',
+          order_index: 6
+        }
+      ];
+
+      const insertFAQ = db.prepare(`
+        INSERT INTO faq_items (question, answer, order_index)
+        VALUES (?, ?, ?)
+      `);
+      for (const faq of defaultFAQ) {
+        insertFAQ.run(faq.question, faq.answer, faq.order_index);
+      }
+      console.log('[Database] Default FAQ seeded.');
+    }
+
+    // Seed About Sections jika masih kosong
+    const countAboutSections = db.prepare('SELECT count(*) as count FROM about_sections').get().count;
+    if (countAboutSections === 0) {
+      const defaultAboutSections = [
+        {
+          type: 'core_foundations',
+          title: 'Core Foundations',
+          items: JSON.stringify([
+            { num: '01', title: 'Understand Before Building', desc: 'Start by understanding the business, its actual users, and the root problem that needs solving. We never write code until the workflow friction points are systematically mapped.', bullets: ['Root workflow analysis', 'Pain-point validation audits'], icon: '<svg className="w-5 h-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="10" cy="10" r="7" /><path d="M10 6v4l3 2" strokeLinecap="round" strokeLinejoin="round" /></svg>' },
+            { num: '02', title: 'Keep It Practical', desc: 'Choose features and implementation approaches that serve a clear purpose instead of adding unnecessary operational overhead or brittle framework dependencies.', bullets: ['Lean, dependency-conscious architecture', 'Zero superfluous micro-services'], icon: '<svg className="w-5 h-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 6h12M4 10h8M4 14h5" strokeLinecap="round" /></svg>' },
+            { num: '03', title: 'Build for Real Use', desc: 'Create digital experiences that are immediately understandable, stress-free to maintain, and appropriate for the exact daily habits of the people who interact with them.', bullets: ['Human-centered UI workflows', 'Documented, self-sufficient codebases'], icon: '<svg className="w-5 h-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 12l2 2 4-4" strokeLinecap="round" strokeLinejoin="round" /><path d="M4 4h12a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z" /></svg>' }
+          ]),
+          order_index: 1
+        },
+        {
+          type: 'process_stages',
+          title: 'Process Stages',
+          items: JSON.stringify([
+            { stage: 'STAGE 01', title: 'Listen & Understand', desc: 'Discuss operational goals, target users, constraints, and current systemic bottlenecks.', icon: '<svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M8 2a4 4 0 014 4v1.5A2.5 2.5 0 019.5 10H8a4 4 0 01-4-4V6a4 4 0 014-4z" strokeLinecap="round" /><path d="M5 14a3 3 0 006 0" strokeLinecap="round" /></svg>' },
+            { stage: 'STAGE 02', title: 'Define the Scope', desc: 'Specify essential deliverables, technological stack, milestone deliverables, and timeline commitments.', icon: '<svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="2" width="12" height="12" rx="1.5" /><path d="M5 8h6M8 5v6" strokeLinecap="round" /></svg>' },
+            { stage: 'STAGE 03', title: 'Design the UX', desc: 'Organize site architecture, establish high-fidelity UI systems, and validate key end-to-end task flows.', icon: '<svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="3" width="14" height="10" rx="1.5" /><path d="M5 6h6M5 9h4" strokeLinecap="round" /></svg>' },
+            { stage: 'STAGE 04', title: 'Build & Refine', desc: 'Implement production-grade code, execute rigorous functional tests, and polish user experience metrics.', icon: '<svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 13l3-3 2 2 5-6" strokeLinecap="round" strokeLinejoin="round" /></svg>' },
+            { stage: 'STAGE 05', title: 'Launch & Handover', desc: 'Execute secure deployment, deliver technical documentation, and initiate warranty support periods.', icon: '<svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M8 2l1.5 4.5H14l-3.75 2.75 1.5 4.5L8 11.25 4.25 13.75l1.5-4.5L2 6.5h4.5L8 2z" strokeLinecap="round" strokeLinejoin="round" /></svg>' }
+          ]),
+          order_index: 2
+        },
+        {
+          type: 'studio_ethics',
+          title: 'Studio Ethics',
+          items: JSON.stringify([
+            { title: 'Clear Communication', desc: 'We discuss technical trade-offs, architecture decisions, and roadmap priorities in accessible, business-centric language without obfuscating technical jargon.', icon: '<svg className="w-5 h-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H6l-4 3V5z" strokeLinecap="round" strokeLinejoin="round" /></svg>' },
+            { title: 'Defined Expectations', desc: 'Scope boundaries, specific milestones, functional deliverables, and revisions are locked down explicitly before any codebase development commences.', icon: '<svg className="w-5 h-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 12l2 2 4-4" strokeLinecap="round" strokeLinejoin="round" /><rect x="3" y="3" width="14" height="14" rx="2" /></svg>' },
+            { title: 'Thoughtful Execution', desc: 'We hold an uncompromising attitude toward design typography, UX friction, responsive performance budgets, cross-browser compatibility, and modular codebase hygiene.', icon: '<svg className="w-5 h-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="3" width="16" height="13" rx="2" /><path d="M6 7h8M6 11h5" strokeLinecap="round" /></svg>' },
+            { title: 'Honest Collaboration', desc: 'If an idea is over-engineered or introduces unnecessary risks to your operating model, we say so upfront. We value client viability above billable hours.', icon: '<svg className="w-5 h-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 10s1-6 6-6 6 6 6 6-1 6-6 6-6-6-6-6z" /><circle cx="10" cy="10" r="2" /></svg>' }
+          ]),
+          order_index: 3
+        }
+      ];
+
+      const insertAboutSection = db.prepare(`
+        INSERT INTO about_sections (type, title, subtitle, items, order_index)
+        VALUES (?, ?, ?, ?, ?)
+      `);
+      for (const section of defaultAboutSections) {
+        insertAboutSection.run(section.type, section.title, section.subtitle, section.items, section.order_index);
+      }
+      console.log('[Database] Default About Sections seeded.');
+    }
+
+    // Seed Translations Default
+    const checkTranslations = db.prepare('SELECT COUNT(*) as count FROM translations').get();
+    if (checkTranslations.count === 0) {
+      const defaultTranslations = [
+        // FAQ Questions (English)
+        { key: 'faq_q_1', language: 'en', text: 'How long does website or application development take?', source_key: 'faq_q_1', source_language: 'en', is_manual: 0 },
+        { key: 'faq_q_2', language: 'en', text: 'Can I request design that matches my brand?', source_key: 'faq_q_2', source_language: 'en', is_manual: 0 },
+        { key: 'faq_q_3', language: 'en', text: 'Will the website work on mobile and laptop?', source_key: 'faq_q_3', source_language: 'en', is_manual: 0 },
+        { key: 'faq_q_4', language: 'en', text: 'Is there revision after project completion?', source_key: 'faq_q_4', source_language: 'en', is_manual: 0 },
+        { key: 'faq_q_5', language: 'en', text: "Can you help with hosting and domain if I don't have them?", source_key: 'faq_q_5', source_language: 'en', is_manual: 0 },
+        { key: 'faq_q_6', language: 'en', text: 'How do I start project consultation?', source_key: 'faq_q_6', source_language: 'en', is_manual: 0 },
+
+        // FAQ Answers (English)
+        { key: 'faq_a_1', language: 'en', text: 'Depends on scope. Landing page usually 3-7 days, company profile around 1-2 weeks, custom app 3-8 weeks depending on features.', source_key: 'faq_a_1', source_language: 'en', is_manual: 0 },
+        { key: 'faq_a_2', language: 'en', text: 'Yes. Colors, visual style, typography, even page structure can be customized to match your brand for a more professional look.', source_key: 'faq_a_2', source_language: 'en', is_manual: 0 },
+        { key: 'faq_a_3', language: 'en', text: 'Yes. All websites are built responsive so they remain comfortable to use on mobile, tablet, or desktop.', source_key: 'faq_a_3', source_language: 'en', is_manual: 0 },
+        { key: 'faq_a_4', language: 'en', text: 'Yes. I usually provide revision sessions as per package or initial agreement so the final result matches your needs exactly.', source_key: 'faq_a_4', source_language: 'en', is_manual: 0 },
+        { key: 'faq_a_5', language: 'en', text: 'Yes. I can help recommend, setup, and deployment so your website goes online smoothly without technical hassle.', source_key: 'faq_a_5', source_language: 'en', is_manual: 0 },
+        { key: 'faq_a_6', language: 'en', text: 'Just contact via WhatsApp or contact form. Send project needs, business goals, and references if any, then I guide you to the best solution.', source_key: 'faq_a_6', source_language: 'en', is_manual: 0 },
+      ];
+
+      const insertTranslation = db.prepare(`
+        INSERT INTO translations (key, language, text, source_key, source_language, is_manual)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `);
+
+      for (const trans of defaultTranslations) {
+        insertTranslation.run(trans.key, trans.language, trans.text, trans.source_key, trans.source_language, trans.is_manual);
+      }
+      console.log('[Database] Default translations seeded.');
     }
 
     console.log(`[Database] SQLite Database aktif dan siap di: ${dbPath}`);

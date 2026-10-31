@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { API_ENDPOINTS } from '../config/api';
-import HeroCardsPage from './admin/HeroCardsPage';
+import HeroCardsPage from './Admin/HeroCardsPage';
+import FAQAdmin from './Admin/FAQAdmin';
+import AboutSectionsAdmin from './Admin/AboutSectionsAdmin';
+import TranslationAdmin from './Admin/TranslationAdmin';
 
 interface ContactMessage {
   id: number;
@@ -85,7 +88,7 @@ const AdminPage: React.FC = () => {
   const [loginError, setLoginError] = useState('');
 
   // Dashboard active tab
-  const [activeTab, setActiveTab] = useState<'overview' | 'inbox' | 'profile' | 'projects' | 'services' | 'team' | 'testimonials' | 'pricing' | 'hero-cards' | 'preview'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'inbox' | 'profile' | 'projects' | 'services' | 'team' | 'testimonials' | 'pricing' | 'hero-cards' | 'faq' | 'about-sections' | 'preview'>('overview');
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
   const [previewKey, setPreviewKey] = useState(0);
 
@@ -167,11 +170,17 @@ const AdminPage: React.FC = () => {
     setLoginError('');
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
       const res = await fetch(API_ENDPOINTS.auth.login, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: loginEmail, password: loginPassword })
+        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       const data = await res.json();
       if (data.status === 'success' && data.data?.token) {
@@ -182,8 +191,13 @@ const AdminPage: React.FC = () => {
       } else {
         setLoginError(data.message || 'Login gagal, periksa email dan password.');
       }
-    } catch (err) {
-      setLoginError('Tidak dapat terhubung ke server backend (http://localhost:5000).');
+    } catch (err: any) {
+      console.error('[Login Error]', err);
+      if (err.name === 'AbortError') {
+        setLoginError('Request timeout - server tidak merespons dalam 10 detik.');
+      } else {
+        setLoginError(`Tidak dapat terhubung ke server backend: ${err.message}`);
+      }
     } finally {
       setLoginLoading(false);
     }
@@ -977,6 +991,34 @@ const AdminPage: React.FC = () => {
           </button>
 
           <button
+            onClick={() => setActiveTab('faq')}
+            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center justify-between transition-all ${
+              activeTab === 'faq'
+                ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20 font-bold'
+                : 'text-slate-400 hover:text-white hover:bg-slate-900'
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <span>❓</span>
+              <span>FAQ</span>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('about-sections')}
+            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center justify-between transition-all ${
+              activeTab === 'about-sections'
+                ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20 font-bold'
+                : 'text-slate-400 hover:text-white hover:bg-slate-900'
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <span>📝</span>
+              <span>About Sections</span>
+            </div>
+          </button>
+
+          <button
             onClick={() => setActiveTab('preview')}
             className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center justify-between transition-all ${
               activeTab === 'preview'
@@ -1767,7 +1809,22 @@ const AdminPage: React.FC = () => {
             <HeroCardsPage />
           )}
 
-          {/* TAB 10: LIVE PREVIEW */}
+          {/* TAB 10: FAQ */}
+          {activeTab === 'faq' && (
+            <FAQAdmin />
+          )}
+
+          {/* TAB 11: ABOUT SECTIONS */}
+          {activeTab === 'about-sections' && (
+            <AboutSectionsAdmin />
+          )}
+
+          {/* TAB 12: TRANSLATIONS */}
+          {activeTab === 'translations' && (
+            <TranslationAdmin />
+          )}
+
+          {/* TAB 13: LIVE PREVIEW */}
           {activeTab === 'preview' && (
             <div className="flex flex-col h-full">
               {/* Header & Controls Toolbar */}

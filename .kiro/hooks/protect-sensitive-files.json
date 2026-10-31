@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Protect Sensitive Files",
+      "trigger": "PreToolUse",
+      "description": "Create FAQ and About sections tables migration",
+      "matcher": "read_file|read_code|file_search|grep_search|list_directory|fs_write|str_replace|fs_append|delete_file|smart_relocate|semantic_rename|invoke_sub_agent|control_pwsh_process",
+      "action": {
+        "type": "command",
+        "command": "Write-Output '{\\\"hookSpecificOutput\\\":{\\\"permissionDecision\\\":\\\"ask\\\",\\\"permissionDecisionReason\\\":\\\"Create FAQ table migration script - editing database structure\\\"}}'; exit 2"
+      }
+    }
+  ]
+}

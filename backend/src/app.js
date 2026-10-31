@@ -17,12 +17,19 @@ const testimonialsRoutes = require('./routes/testimonialsRoutes');
 const pricingRoutes = require('./routes/pricingRoutes');
 const themeRoutes = require('./routes/themeRoutes');
 const heroCardsRoutes = require('./routes/heroCardsRoutes');
+const faqRoutes = require('./routes/faqRoutes');
+const aboutSectionsRoutes = require('./routes/aboutSectionsRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middlewares with larger limit for logo / image uploads
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: false
+}));
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 
@@ -55,8 +62,11 @@ app.use('/api/testimonials', testimonialsRoutes);
 app.use('/api/pricing', pricingRoutes);
 app.use('/api/theme', themeRoutes);
 app.use('/api/hero-cards', heroCardsRoutes);
+app.use('/api/faq', faqRoutes);
+app.use('/api/about-sections', aboutSectionsRoutes);
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`[Server] Aktif di http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`[Server] Aktif di http://0.0.0.0:${PORT}`);
+  console.log(`[Server] Akses lokal di http://localhost:${PORT}`);
 });

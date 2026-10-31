@@ -1,0 +1,14 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Test Hook",
+      "trigger": "PostFileCreate",
+      "description": "Test hook creation",
+      "action": {
+        "type": "command",
+        "command": "echo \"test\""
+      }
+    }
+  ]
+}

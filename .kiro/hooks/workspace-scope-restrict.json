@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Workspace Scope Restrict",
+      "trigger": "PreToolUse",
+      "description": "Block tool operations outside Porto workspace",
+      "matcher": "read_file|read_code|file_search|grep_search|list_directory|fs_write|str_replace|fs_append|delete_file|smart_relocate|semantic_rename|invoke_sub_agent|control_pwsh_process",
+      "action": {
+        "type": "command",
+        "command": "if ($input.tool -match \"read_file|read_code|file_search|grep_search|list_directory|fs_write|str_replace|fs_append|delete_file|smart_relocate|semantic_rename|invoke_sub_agent|control_pwsh_process\") { $file = $input.arguments.path; $cwd = $input.arguments.cwd; $target = $file; if (-not $target -and $cwd) { $target = $cwd } if ($target -and $target -notmatch \"^c:\\\\\\\\Reavlenia Arezha\\\\\\\\Porto\") { Write-Output '{\\\"hookSpecificOutput\\\":{\\\"permissionDecision\\\":\\\"ask\\\",\\\"permissionDecisionReason\\\":\\\"File/directory operation outside workspace scope detected: ' + $target + '\\\"}}'; exit 2 } }"
+      }
+    }
+  ]
+}
