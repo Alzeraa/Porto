@@ -43,13 +43,28 @@ const ProjectDetailPage = () => {
     return (
       <div className="min-h-screen bg-white dark:bg-[#0F1419] flex items-center justify-center px-6">
         <div className="text-center">
-          <p className="text-slate-500 mb-4">{error || 'Project tidak ditemukan'}</p>
-          <button
-            onClick={() => navigateTo('/projects')}
-            className="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700"
-          >
-            Kembali ke Projects
-          </button>
+          <p className="text-slate-500 mb-4">{error || 'Project detail tidak ditemukan'}</p>
+          <p className="text-sm text-slate-400 mb-6">
+            Project ini belum memiliki case study detail. Tetapi kamu bisa lihat informasi project di halaman projects.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button
+              onClick={() => navigateTo('/projects')}
+              className="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700"
+            >
+              Kembali ke Projects
+            </button>
+            {project && project.link && (
+              <a
+                href={project.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-5 py-2 border border-blue-600 text-blue-600 dark:text-blue-400 rounded-lg text-sm font-semibold hover:bg-blue-50 dark:hover:bg-blue-900/20"
+              >
+                Lihat Project
+              </a>
+            )}
+          </div>
         </div>
       </div>
     );

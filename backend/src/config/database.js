@@ -614,6 +614,225 @@ const initDatabase = async () => {
       }
     }
 
+    // ─── SEED PROJECT DETAILS FOR OTHER PROJECTS ───
+    // Travel App
+    const travelAppCheck = await client.query(
+      'SELECT id FROM project_details WHERE project_id = (SELECT id FROM projects WHERE slug = $1 LIMIT 1)',
+      ['travel-app']
+    );
+
+    if (travelAppCheck.rows.length === 0) {
+      const travelAppProjectId = await client.query(
+        'SELECT id FROM projects WHERE slug = $1 LIMIT 1',
+        ['travel-app']
+      );
+
+      if (travelAppProjectId.rows.length > 0) {
+        const projectId = travelAppProjectId.rows[0].id;
+        await client.query(`
+          INSERT INTO project_details (
+            project_id, tagline, hero_stats, screenshot_url, archive_code, year,
+            overview_title, overview_description, overview_meta,
+            problem_title, problem_description, bottlenecks,
+            solution_title, solution_description, pipeline,
+            capabilities_title, capabilities,
+            tech_title, tech_specs, tech_image_url,
+            outcomes_title, deliverables,
+            how_built_title, how_built_description, how_built_items,
+            related_slugs
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)
+        `, [
+          projectId,
+          'Modern Travel Booking Platform',
+          JSON.stringify([
+            { value: '45K+', label: 'MONTHLY BOOKINGS', blue: true, sub: 'Active users' },
+            { value: '98%', label: 'PAYMENT SUCCESS RATE', sub: 'Midtrans integration' },
+            { value: '2.3s', label: 'AVERAGE LOAD TIME', sub: 'Optimized' }
+          ]),
+          'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&q=80&w=800',
+          'CS-TravelApp-2024',
+          2024,
+          
+          'Project Overview',
+          'Travel App adalah platform booking paket wisata yang memudahkan users mencari dan membooking paket wisata dari berbagai operator dengan interface yang modern dan payment integration yang smooth.',
+          JSON.stringify([
+            { icon: '🗺️', title: 'Destination Catalog', desc: 'Database lengkap destinasi wisata di Indonesia' },
+            { icon: '💳', title: 'Seamless Payment', desc: 'Integrasi Midtrans untuk berbagai metode pembayaran' },
+            { icon: '⭐', title: 'Review System', desc: 'User reviews dan ratings untuk transparansi' }
+          ]),
+          
+          'Problem',
+          'Travel booking marketplace yang ada masih kompleks dan sulit untuk user casual.',
+          JSON.stringify([
+            { icon: '🔍', title: 'Difficult Discovery', desc: 'Sulit menemukan paket wisata yang sesuai' },
+            { icon: '💰', title: 'Payment Friction', desc: 'Banyak metode pembayaran tidak tersedia' },
+            { icon: '❌', title: 'No Reviews', desc: 'Tidak ada sistem review untuk kepercayaan' }
+          ]),
+          
+          'Solution',
+          'Kami membangun platform travel yang fokus pada UX simplicity dengan payment gateway terintegrasi dan sistem review yang kredibel.',
+          JSON.stringify([
+            { num: '01', title: 'Streamlined Search', desc: 'Filter yang intuitif untuk menemukan paket' },
+            { num: '02', title: 'Multi-Payment Gateway', desc: 'Integrasi Midtrans untuk semua metode pembayaran' },
+            { num: '03', title: 'Trust System', desc: 'Review dan rating dari verified users' },
+            { num: '04', title: 'Mobile First', desc: 'Optimized untuk mobile experience' }
+          ]),
+          
+          'Key Features',
+          JSON.stringify([
+            { title: 'Advanced Search & Filter', description: 'Find packages by destination, price, date, and more' },
+            { title: 'Real-time Availability', description: 'Live updates on package availability' },
+            { title: 'Secure Payment Processing', description: 'Multiple payment methods via Midtrans' },
+            { title: 'Booking Management', description: 'Easy tracking and management of bookings' },
+            { title: 'Review & Ratings', description: 'Community reviews for transparency' },
+            { title: 'Instant Confirmation', description: 'Automatic booking confirmation via email' },
+            { title: 'Multi-Language Support', description: 'Available in Indonesian and English' },
+            { title: 'Admin Dashboard', description: 'Operator portal for package management' }
+          ]),
+          
+          'Tech Stack & Performance',
+          JSON.stringify([
+            { category: 'Frontend', tech: 'React + TypeScript', note: 'Modern UI with Tailwind' },
+            { category: 'Backend', tech: 'Node.js + Express', note: 'RESTful API architecture' },
+            { category: 'Database', tech: 'MySQL', note: 'Relational data management' },
+            { category: 'Payment', tech: 'Midtrans Integration', note: 'Indonesian payment gateway' },
+            { category: 'Hosting', tech: 'Cloud Server', note: 'Scalable infrastructure' },
+            { category: 'CDN', tech: 'Image Optimization', note: 'Fast image delivery' }
+          ]),
+          'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&q=80&w=800',
+          
+          'Results & Impact',
+          JSON.stringify([
+            { icon: '📈', title: 'User Growth', value: '+300%', note: 'First year adoption' },
+            { icon: '💰', title: 'Revenue', value: '+$2M', note: 'First year revenue' },
+            { icon: '⭐', title: 'Ratings', value: '4.8/5', note: 'App store rating' },
+            { icon: '🚀', title: 'Speed', value: '2.3s', note: 'Average load time' }
+          ]),
+          
+          'Development Process',
+          'Iterative development dengan regular user testing dan feedback incorporation.',
+          JSON.stringify([
+            { phase: 'Requirements & Design', weeks: '3-4', description: 'Gathered user requirements and designed UI/UX' },
+            { phase: 'Backend Development', weeks: '4-5', description: 'Built API and integrated Midtrans' },
+            { phase: 'Frontend Development', weeks: '3-4', description: 'Implemented React frontend' },
+            { phase: 'Testing & Launch', weeks: '2-3', description: 'QA testing and production launch' }
+          ]),
+          
+          ARRAY['logiflow-dispatch-portal', 'absensi-siswa-qrcode']
+        ]);
+        console.log('[Database] Travel App project detail seeded.');
+      }
+    }
+
+    // Absensi Siswa
+    const absensiCheck = await client.query(
+      'SELECT id FROM project_details WHERE project_id = (SELECT id FROM projects WHERE slug = $1 LIMIT 1)',
+      ['absensi-siswa-qrcode']
+    );
+
+    if (absensiCheck.rows.length === 0) {
+      const absensiProjectId = await client.query(
+        'SELECT id FROM projects WHERE slug = $1 LIMIT 1',
+        ['absensi-siswa-qrcode']
+      );
+
+      if (absensiProjectId.rows.length > 0) {
+        const projectId = absensiProjectId.rows[0].id;
+        await client.query(`
+          INSERT INTO project_details (
+            project_id, tagline, hero_stats, screenshot_url, archive_code, year,
+            overview_title, overview_description, overview_meta,
+            problem_title, problem_description, bottlenecks,
+            solution_title, solution_description, pipeline,
+            capabilities_title, capabilities,
+            tech_title, tech_specs, tech_image_url,
+            outcomes_title, deliverables,
+            how_built_title, how_built_description, how_built_items,
+            related_slugs
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)
+        `, [
+          projectId,
+          'Smart Student Attendance System',
+          JSON.stringify([
+            { value: '10+ Schools', label: 'ACTIVE ADOPTION', blue: true, sub: 'Across Indonesia' },
+            { value: '95%', label: 'ACCURACY RATE', sub: 'Face recognition + QR code' },
+            { value: '5000+', label: 'DAILY USERS', sub: 'Students and teachers' }
+          ]),
+          'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=800',
+          'CS-Absensi-2024',
+          2024,
+          
+          'Project Overview',
+          'Sistem absensi yang modern menggunakan kombinasi QR code scanning dan face recognition technology untuk automasi dan akurasi yang lebih tinggi di sekolah.',
+          JSON.stringify([
+            { icon: '🎓', title: 'Education Focused', desc: 'Designed specifically for school environment' },
+            { icon: '📱', title: 'Mobile Integration', desc: 'App-based attendance for teachers' },
+            { icon: '🔐', title: 'Secure & Verified', desc: 'Multiple verification methods' }
+          ]),
+          
+          'Challenge',
+          'Sistem absensi manual di sekolah memakan waktu dan rentan terhadap fraud.',
+          JSON.stringify([
+            { icon: '⏰', title: 'Time Consuming', desc: 'Manual roll-call takes too long' },
+            { icon: '🤥', title: 'Attendance Fraud', desc: 'Students marking attendance for others' },
+            { icon: '📊', title: 'No Analytics', desc: 'Difficult to track patterns' }
+          ]),
+          
+          'Our Solution',
+          'Automated attendance system dengan dual verification (QR + Face Recognition) untuk akurasi maksimal.',
+          JSON.stringify([
+            { num: '01', title: 'QR Code Scanning', desc: 'Quick check-in using mobile app' },
+            { num: '02', title: 'Face Recognition', desc: 'Biometric verification for accuracy' },
+            { num: '03', title: 'Real-time Dashboard', desc: 'Live attendance monitoring for teachers' },
+            { num: '04', title: 'Detailed Reports', desc: 'Automated attendance reports and analytics' }
+          ]),
+          
+          'Key Capabilities',
+          JSON.stringify([
+            { title: 'QR Code Generation', description: 'Dynamic QR codes for each class session' },
+            { title: 'Face Recognition', description: 'Accurate facial identification for verification' },
+            { title: 'Mobile App', description: 'iOS and Android app for easy check-in' },
+            { title: 'Teacher Dashboard', description: 'Real-time attendance tracking' },
+            { title: 'Parent Notifications', description: 'Auto-notify parents of absences' },
+            { title: 'Analytics & Reports', description: 'Comprehensive attendance analytics' },
+            { title: 'Multi-School Support', description: 'Manage multiple school locations' },
+            { title: 'Admin Portal', description: 'Complete system administration interface' }
+          ]),
+          
+          'Technical Implementation',
+          JSON.stringify([
+            { category: 'Frontend', tech: 'React + TypeScript', note: 'Modern dashboard interface' },
+            { category: 'Mobile', tech: 'React Native', note: 'iOS and Android app' },
+            { category: 'Backend', tech: 'Node.js + Express', note: 'Scalable API server' },
+            { category: 'Database', tech: 'MySQL', note: 'Attendance data storage' },
+            { category: 'AI/ML', tech: 'Face Recognition API', note: 'TensorFlow or similar' },
+            { category: 'QR Code', tech: 'QR Library', note: 'Dynamic QR generation' }
+          ]),
+          'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=800',
+          
+          'Outcomes Achieved',
+          JSON.stringify([
+            { icon: '⏱️', title: 'Time Saved', value: '80%', note: 'Reduction in attendance time' },
+            { icon: '🛡️', title: 'Fraud Prevention', value: '99%', note: 'Elimination of fake attendance' },
+            { icon: '📈', title: 'Adoption Rate', value: '92%', note: 'School acceptance' },
+            { icon: '⭐', title: 'Satisfaction', value: '4.9/5', note: 'User satisfaction score' }
+          ]),
+          
+          'Build Timeline',
+          'Complete development cycle untuk school-ready system.',
+          JSON.stringify([
+            { phase: 'Research & Design', weeks: '2-3', description: 'Conducted school surveys and designed system' },
+            { phase: 'Core Development', weeks: '5-6', description: 'Built backend and frontend' },
+            { phase: 'ML Integration', weeks: '2-3', description: 'Integrated face recognition' },
+            { phase: 'Testing & Deployment', weeks: '2-3', description: 'School pilots and full rollout' }
+          ]),
+          
+          ARRAY['travel-app', 'logiflow-dispatch-portal']
+        ]);
+        console.log('[Database] Absensi Siswa project detail seeded.');
+      }
+    }
+
     console.log('[Database] Inisialisasi selesai.');
   } catch (err) {
     console.error('[Database] Inisialisasi gagal:', err.message);
