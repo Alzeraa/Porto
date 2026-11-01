@@ -28,8 +28,7 @@ const AppRoutes = ({ darkMode }: AppRoutesProps) => {
   }
 
   if (pathname.startsWith('/projects/')) {
-    const id = pathname.split('/projects/')[1];
-    return <ProjectDetailPage projectId={id} />;
+    return <ProjectDetailPage />;
   }
 
   if (pathname === '/projects') {

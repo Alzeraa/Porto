@@ -3,6 +3,7 @@ import { API_ENDPOINTS } from '../config/api';
 import HeroCardsPage from './admin/HeroCardsPage';
 import FAQAdmin from './admin/FAQAdmin';
 import AboutSectionsAdmin from './admin/AboutSectionsAdmin';
+import ProjectDetailsAdmin from './admin/ProjectDetailsAdmin';
 
 interface ContactMessage {
   id: number;
@@ -59,7 +60,7 @@ const AdminPage: React.FC = () => {
 
   // Dashboard active tab
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'inbox' | 'profile' | 'projects' | 'hero-cards' | 'faq' | 'about-sections' | 'preview'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'inbox' | 'profile' | 'projects' | 'hero-cards' | 'faq' | 'about-sections' | 'project-details' | 'preview'>('overview');
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
   const [previewKey, setPreviewKey] = useState(0);
 
@@ -758,6 +759,21 @@ const AdminPage: React.FC = () => {
 
           <button
             onClick={() => {
+              setActiveTab('project-details');
+              setIsSidebarOpen(false);
+            }}
+            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2.5 transition-all ${
+              activeTab === 'project-details'
+                ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20 font-bold'
+                : 'text-slate-400 hover:text-white hover:bg-slate-900'
+            }`}
+          >
+            <span>📋</span>
+            <span>Detail Proyek</span>
+          </button>
+
+          <button
+            onClick={() => {
               setActiveTab('preview');
               setIsSidebarOpen(false);
             }}
@@ -1347,6 +1363,11 @@ const AdminPage: React.FC = () => {
           {/* TAB 11: ABOUT SECTIONS */}
           {activeTab === 'about-sections' && (
             <AboutSectionsAdmin />
+          )}
+
+          {/* TAB 12: PROJECT DETAILS */}
+          {activeTab === 'project-details' && (
+            <ProjectDetailsAdmin />
           )}
 
           {/* TAB 13: LIVE PREVIEW */}
