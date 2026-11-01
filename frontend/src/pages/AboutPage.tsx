@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 import { API_ENDPOINTS } from '../config/api';
+import { useLanguage } from '../hooks/useLanguage';
 
 // ─── Icon components ──────────────────────────────────────────────────────────
 
@@ -94,15 +95,7 @@ const AboutPage = () => {
   const [aboutSections, setAboutSections] = useState<AboutSection[]>([]);
   const [faqItems, setFaqItems] = useState<FAQItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentLang, setCurrentLang] = useState('id');
-
-  // Get language from localStorage or default to 'id'
-  useEffect(() => {
-    const storedLang = localStorage.getItem('alzera_language');
-    if (storedLang) {
-      setCurrentLang(storedLang);
-    }
-  }, []);
+  const { language: currentLang } = useLanguage();
 
   // Scroll animations
   const { ref: heroRef, isVisible: heroVisible } = useScrollAnimation(0.05);
@@ -175,38 +168,6 @@ const AboutPage = () => {
           <div className="text-blue-500 animate-pulse">Loading content...</div>
         </div>
       )}
-
-      {/* Language Switcher */}
-      <div className="fixed top-4 right-4 z-50">
-        <div className="flex items-center gap-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur px-3 py-1.5 rounded-full shadow-xl border border-slate-200 dark:border-slate-700">
-          <button
-            onClick={() => {
-              localStorage.setItem('alzera_language', 'id');
-              setCurrentLang('id');
-            }}
-            className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
-              currentLang === 'id' 
-                ? 'bg-blue-500 text-white shadow-md' 
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-            }`}
-          >
-            ID
-          </button>
-          <button
-            onClick={() => {
-              localStorage.setItem('alzera_language', 'en');
-              setCurrentLang('en');
-            }}
-            className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
-              currentLang === 'en' 
-                ? 'bg-blue-500 text-white shadow-md' 
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-            }`}
-          >
-            EN
-          </button>
-        </div>
-      </div>
 
       {/* ── Hero ───────────────────────────────────────────────────────────── */}
       <section className="pt-28 pb-0 bg-[#07112A] dark:bg-[#04091A] relative overflow-hidden">

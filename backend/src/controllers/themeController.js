@@ -1,58 +1,38 @@
-const db = require('../config/database');
+const pool = require('../config/database');
 
 // GET Theme Settings
-exports.getTheme = (req, res) => {
+exports.getTheme = async (req, res) => {
   try {
-    const theme = db.prepare('SELECT * FROM theme_settings WHERE id = 1').get();
-    res.json({
-      status: 'success',
-      data: theme || {}
-    });
+    const { rows } = await pool.query('SELECT * FROM theme_settings WHERE id = 1');
+    res.json({ status: 'success', data: rows[0] || {} });
   } catch (error) {
     res.status(500).json({ status: 'error', message: 'Gagal memuat tema.' });
   }
 };
 
 // PUT Theme Settings (Admin)
-exports.updateTheme = (req, res) => {
+exports.updateTheme = async (req, res) => {
   try {
-    const {
-      primary_color,
-      primary_light,
-      primary_dark,
-      accent_color,
-      background_dark,
-      text_primary,
-      logo_url
-    } = req.body;
+    const { primary_color, primary_light, primary_dark, accent_color, background_dark, text_primary, logo_url } = req.body;
 
-    db.prepare(`
+    const { rows } = await pool.query(`
       UPDATE theme_settings SET
-        primary_color = COALESCE(?, primary_color),
-        primary_light = COALESCE(?, primary_light),
-        primary_dark = COALESCE(?, primary_dark),
-        accent_color = COALESCE(?, accent_color),
-        background_dark = COALESCE(?, background_dark),
-        text_primary = COALESCE(?, text_primary),
-        logo_url = COALESCE(?, logo_url),
-        updated_at = CURRENT_TIMESTAMP
+        primary_color   = COALESCE($1, primary_color),
+        primary_light   = COALESCE($2, primary_light),
+        primary_dark    = COALESCE($3, primary_dark),
+        accent_color    = COALESCE($4, accent_color),
+        background_dark = COALESCE($5, background_dark),
+        text_primary    = COALESCE($6, text_primary),
+        logo_url        = COALESCE($7, logo_url),
+        updated_at      = NOW()
       WHERE id = 1
-    `).run(
-      primary_color ?? null,
-      primary_light ?? null,
-      primary_dark ?? null,
-      accent_color ?? null,
-      background_dark ?? null,
-      text_primary ?? null,
-      logo_url ?? null
-    );
+      RETURNING *
+    `, [
+      primary_color ?? null, primary_light ?? null, primary_dark ?? null,
+      accent_color ?? null, background_dark ?? null, text_primary ?? null, logo_url ?? null,
+    ]);
 
-    const updated = db.prepare('SELECT * FROM theme_settings WHERE id = 1').get();
-    res.json({
-      status: 'success',
-      message: 'Tema berhasil diperbarui!',
-      data: updated
-    });
+    res.json({ status: 'success', message: 'Tema berhasil diperbarui!', data: rows[0] });
   } catch (error) {
     console.error('Update theme error:', error);
     res.status(500).json({ status: 'error', message: 'Gagal memperbarui tema.' });

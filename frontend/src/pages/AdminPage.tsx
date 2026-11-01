@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { API_ENDPOINTS } from '../config/api';
-import HeroCardsPage from './Admin/HeroCardsPage';
-import FAQAdmin from './Admin/FAQAdmin';
-import AboutSectionsAdmin from './Admin/AboutSectionsAdmin';
-import TranslationAdmin from './Admin/TranslationAdmin';
+import HeroCardsPage from './admin/HeroCardsPage';
+import FAQAdmin from './admin/FAQAdmin';
+import AboutSectionsAdmin from './admin/AboutSectionsAdmin';
 
 interface ContactMessage {
   id: number;
@@ -26,13 +25,7 @@ interface ProjectItem {
   link?: string;
 }
 
-interface ServiceItem {
-  id?: number;
-  icon: string;
-  title: string;
-  description: string;
-  features: string[];
-}
+
 
 interface ProfileForm {
   name: string;
@@ -54,30 +47,7 @@ interface ProfileForm {
   tech_stack?: string;
 }
 
-interface TeamItem {
-  id?: number;
-  name: string;
-  role: string;
-  bio: string;
-  image: string;
-}
 
-interface TestimonialItem {
-  id?: number;
-  name: string;
-  role: string;
-  content: string;
-  rating: number;
-  photo: string;
-}
-
-interface PricingItem {
-  id?: number;
-  name: string;
-  price: string;
-  popular: boolean;
-  features: string[];
-}
 
 const AdminPage: React.FC = () => {
   // Auth state
@@ -88,32 +58,14 @@ const AdminPage: React.FC = () => {
   const [loginError, setLoginError] = useState('');
 
   // Dashboard active tab
-  const [activeTab, setActiveTab] = useState<'overview' | 'inbox' | 'profile' | 'projects' | 'services' | 'team' | 'testimonials' | 'pricing' | 'hero-cards' | 'faq' | 'about-sections' | 'preview'>('overview');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'overview' | 'inbox' | 'profile' | 'projects' | 'hero-cards' | 'faq' | 'about-sections' | 'preview'>('overview');
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
   const [previewKey, setPreviewKey] = useState(0);
 
   // Data states
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [projects, setProjects] = useState<ProjectItem[]>([]);
-  const [teamMembers, setTeamMembers] = useState<TeamItem[]>([]);
-  const [testimonials, setTestimonials] = useState<TestimonialItem[]>([]);
-  const [pricingPackages, setPricingPackages] = useState<PricingItem[]>([]);
-
-  // Team Modal State
-  const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
-  const [editingTeam, setEditingTeam] = useState<TeamItem | null>(null);
-  const [teamForm, setTeamForm] = useState({ name: '', role: '', bio: '', image: '' });
-
-  // Testimonial Modal State
-  const [isTestiModalOpen, setIsTestiModalOpen] = useState(false);
-  const [editingTesti, setEditingTesti] = useState<TestimonialItem | null>(null);
-  const [testiForm, setTestiForm] = useState({ name: '', role: '', content: '', rating: 5, photo: '' });
-
-  // Pricing Modal State
-  const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
-  const [editingPricing, setEditingPricing] = useState<PricingItem | null>(null);
-  const [pricingForm, setPricingForm] = useState({ name: '', price: '', popular: false, featuresInput: '' });
-  const [services, setServices] = useState<ServiceItem[]>([]);
   const [profile, setProfile] = useState<ProfileForm>({
     name: 'ALZERA',
     badge: 'Jasa Pembuatan Website & Aplikasi Profesional',
@@ -139,6 +91,7 @@ const AdminPage: React.FC = () => {
   // Project Modal State
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<ProjectItem | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [projectForm, setProjectForm] = useState({
     title: '',
     category: 'Full-Stack Web',
@@ -148,15 +101,16 @@ const AdminPage: React.FC = () => {
     link: ''
   });
 
-  // Service Modal State
-  const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
-  const [editingService, setEditingService] = useState<ServiceItem | null>(null);
-  const [serviceForm, setServiceForm] = useState({
-    icon: '🌐',
-    title: '',
-    description: '',
-    featuresInput: ''
-  });
+  const PROJECT_CATEGORIES = [
+    'Full-Stack Web',
+    'Website Development',
+    'Web Application',
+    'Business Systems',
+    'Mobile App',
+    'E-Commerce',
+    'Other'
+  ];
+
 
   const showNotice = (message: string, type: 'success' | 'error' = 'success') => {
     setNotification({ message, type });
@@ -241,36 +195,6 @@ const AdminPage: React.FC = () => {
     } catch (e) {
       console.error(e);
     }
-
-    // Fetch services
-    try {
-      const res = await fetch(API_ENDPOINTS.services);
-      const data = await res.json();
-      if (data.status === 'success') setServices(data.data || []);
-    } catch (e) {
-      console.error(e);
-    }
-
-    // Fetch team
-    try {
-      const res = await fetch(API_ENDPOINTS.team);
-      const data = await res.json();
-      if (data.status === 'success') setTeamMembers(data.data || []);
-    } catch (e) { console.error(e); }
-
-    // Fetch testimonials
-    try {
-      const res = await fetch(API_ENDPOINTS.testimonials);
-      const data = await res.json();
-      if (data.status === 'success') setTestimonials(data.data || []);
-    } catch (e) { console.error(e); }
-
-    // Fetch pricing
-    try {
-      const res = await fetch(API_ENDPOINTS.pricing);
-      const data = await res.json();
-      if (data.status === 'success') setPricingPackages(data.data || []);
-    } catch (e) { console.error(e); }
   };
 
   useEffect(() => {
@@ -380,14 +304,55 @@ const AdminPage: React.FC = () => {
   };
 
   // Project modal handlers
+  const handleProjectImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      showNotice('Harap pilih file gambar (PNG, JPG, WebP)', 'error');
+      return;
+    }
+
+    setIsUploadingImage(true);
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const base64 = reader.result as string;
+        const res = await fetch(API_ENDPOINTS.upload, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            imageBase64: base64,
+            filename: file.name.split('.')[0]
+          })
+        });
+        const data = await res.json();
+        if (data.status === 'success' && data.data?.url) {
+          setProjectForm((prev) => ({ ...prev, image: data.data.url }));
+          showNotice('Gambar berhasil diunggah!');
+        } else {
+          showNotice(data.message || 'Gagal mengunggah gambar', 'error');
+        }
+      } catch (err) {
+        showNotice('Gagal menghubungkan ke server upload', 'error');
+      } finally {
+        setIsUploadingImage(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const openAddProject = () => {
     setEditingProject(null);
     setProjectForm({
       title: '',
       category: 'Full-Stack Web',
       description: '',
-      techInput: 'React, TypeScript, Tailwind, Node.js',
-      image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800',
+      techInput: '',
+      image: '',
       link: ''
     });
     setIsProjectModalOpen(true);
@@ -480,220 +445,7 @@ const AdminPage: React.FC = () => {
     }
   };
 
-  // Service modal handlers
-  const openAddService = () => {
-    setEditingService(null);
-    setServiceForm({
-      icon: '🌐',
-      title: '',
-      description: '',
-      featuresInput: 'Responsive, Fast Loading, Modern UI'
-    });
-    setIsServiceModalOpen(true);
-  };
 
-  const openEditService = (s: ServiceItem) => {
-    setEditingService(s);
-    setServiceForm({
-      icon: s.icon,
-      title: s.title,
-      description: s.description,
-      featuresInput: s.features ? s.features.join(', ') : ''
-    });
-    setIsServiceModalOpen(true);
-  };
-
-  const handleSaveService = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const featArray = serviceForm.featuresInput
-      .split(',')
-      .map((f) => f.trim())
-      .filter(Boolean);
-
-    const payload = {
-      icon: serviceForm.icon,
-      title: serviceForm.title,
-      description: serviceForm.description,
-      features: featArray
-    };
-
-    try {
-      if (editingService && editingService.id) {
-        const res = await fetch(`${API_ENDPOINTS.services}/${editingService.id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (data.status === 'success') {
-          setServices((prev) =>
-            prev.map((item) => (item.id === editingService.id ? data.data : item))
-          );
-          setIsServiceModalOpen(false);
-          showNotice('Layanan berhasil diperbarui!');
-        }
-      } else {
-        const res = await fetch(API_ENDPOINTS.services, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (data.status === 'success') {
-          setServices((prev) => [...prev, data.data]);
-          setIsServiceModalOpen(false);
-          showNotice('Layanan baru berhasil ditambahkan!');
-        }
-      }
-    } catch (e) {
-      showNotice('Gagal menyimpan layanan.', 'error');
-    }
-  };
-
-  const handleDeleteService = async (id?: number) => {
-    if (!id || !confirm('Hapus layanan ini?')) return;
-    try {
-      const res = await fetch(`${API_ENDPOINTS.services}/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
-      if (data.status === 'success') {
-        setServices((prev) => prev.filter((s) => s.id !== id));
-        showNotice('Layanan berhasil dihapus.');
-      }
-    } catch (e) {
-      showNotice('Gagal menghapus layanan.', 'error');
-    }
-  };
-
-  // --- Team CRUD ---
-  const openAddTeam = () => {
-    setEditingTeam(null);
-    setTeamForm({ name: '', role: '', bio: '', image: '' });
-    setIsTeamModalOpen(true);
-  };
-  const openEditTeam = (t: TeamItem) => {
-    setEditingTeam(t);
-    setTeamForm({ name: t.name, role: t.role, bio: t.bio, image: t.image });
-    setIsTeamModalOpen(true);
-  };
-  const handleSaveTeam = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      if (editingTeam?.id) {
-        const res = await fetch(`${API_ENDPOINTS.team}/${editingTeam.id}`, {
-          method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify(teamForm)
-        });
-        const data = await res.json();
-        if (data.status === 'success') { setTeamMembers(p => p.map(m => m.id === editingTeam.id ? data.data : m)); setIsTeamModalOpen(false); showNotice('Anggota tim diperbarui!'); }
-      } else {
-        const res = await fetch(API_ENDPOINTS.team, {
-          method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify(teamForm)
-        });
-        const data = await res.json();
-        if (data.status === 'success') { setTeamMembers(p => [...p, data.data]); setIsTeamModalOpen(false); showNotice('Anggota tim ditambahkan!'); }
-      }
-    } catch { showNotice('Gagal menyimpan anggota tim.', 'error'); }
-  };
-  const handleDeleteTeam = async (id?: number) => {
-    if (!id || !confirm('Hapus anggota tim ini?')) return;
-    try {
-      const res = await fetch(`${API_ENDPOINTS.team}/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
-      const data = await res.json();
-      if (data.status === 'success') { setTeamMembers(p => p.filter(m => m.id !== id)); showNotice('Anggota tim dihapus.'); }
-    } catch { showNotice('Gagal menghapus.', 'error'); }
-  };
-
-  // --- Testimonial CRUD ---
-  const openAddTesti = () => {
-    setEditingTesti(null);
-    setTestiForm({ name: '', role: '', content: '', rating: 5, photo: '' });
-    setIsTestiModalOpen(true);
-  };
-  const openEditTesti = (t: TestimonialItem) => {
-    setEditingTesti(t);
-    setTestiForm({ name: t.name, role: t.role, content: t.content, rating: t.rating, photo: t.photo });
-    setIsTestiModalOpen(true);
-  };
-  const handleSaveTesti = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      if (editingTesti?.id) {
-        const res = await fetch(`${API_ENDPOINTS.testimonials}/${editingTesti.id}`, {
-          method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify(testiForm)
-        });
-        const data = await res.json();
-        if (data.status === 'success') { setTestimonials(p => p.map(t => t.id === editingTesti.id ? data.data : t)); setIsTestiModalOpen(false); showNotice('Testimoni diperbarui!'); }
-      } else {
-        const res = await fetch(API_ENDPOINTS.testimonials, {
-          method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify(testiForm)
-        });
-        const data = await res.json();
-        if (data.status === 'success') { setTestimonials(p => [...p, data.data]); setIsTestiModalOpen(false); showNotice('Testimoni ditambahkan!'); }
-      }
-    } catch { showNotice('Gagal menyimpan testimoni.', 'error'); }
-  };
-  const handleDeleteTesti = async (id?: number) => {
-    if (!id || !confirm('Hapus testimoni ini?')) return;
-    try {
-      const res = await fetch(`${API_ENDPOINTS.testimonials}/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
-      const data = await res.json();
-      if (data.status === 'success') { setTestimonials(p => p.filter(t => t.id !== id)); showNotice('Testimoni dihapus.'); }
-    } catch { showNotice('Gagal menghapus.', 'error'); }
-  };
-
-  // --- Pricing CRUD ---
-  const openAddPricing = () => {
-    setEditingPricing(null);
-    setPricingForm({ name: '', price: '', popular: false, featuresInput: '' });
-    setIsPricingModalOpen(true);
-  };
-  const openEditPricing = (p: PricingItem) => {
-    setEditingPricing(p);
-    setPricingForm({ name: p.name, price: p.price, popular: p.popular, featuresInput: p.features?.join(', ') || '' });
-    setIsPricingModalOpen(true);
-  };
-  const handleSavePricing = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const featArray = pricingForm.featuresInput.split(',').map(f => f.trim()).filter(Boolean);
-    const payload = { name: pricingForm.name, price: pricingForm.price, popular: pricingForm.popular, features: featArray };
-    try {
-      if (editingPricing?.id) {
-        const res = await fetch(`${API_ENDPOINTS.pricing}/${editingPricing.id}`, {
-          method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (data.status === 'success') { setPricingPackages(p => p.map(x => x.id === editingPricing.id ? data.data : x)); setIsPricingModalOpen(false); showNotice('Paket harga diperbarui!'); }
-      } else {
-        const res = await fetch(API_ENDPOINTS.pricing, {
-          method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (data.status === 'success') { setPricingPackages(p => [...p, data.data]); setIsPricingModalOpen(false); showNotice('Paket harga ditambahkan!'); }
-      }
-    } catch { showNotice('Gagal menyimpan paket harga.', 'error'); }
-  };
-  const handleDeletePricing = async (id?: number) => {
-    if (!id || !confirm('Hapus paket harga ini?')) return;
-    try {
-      const res = await fetch(`${API_ENDPOINTS.pricing}/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
-      const data = await res.json();
-      if (data.status === 'success') { setPricingPackages(p => p.filter(x => x.id !== id)); showNotice('Paket harga dihapus.'); }
-    } catch { showNotice('Gagal menghapus.', 'error'); }
-  };
 
   // -------------------------------------------------------------
   // RENDER: LOGIN VIEW (Jika Belum Login)
@@ -817,32 +569,49 @@ const AdminPage: React.FC = () => {
       )}
 
       {/* Top Navbar */}
-      <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-30 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-tr from-cyan-500 to-teal-400 rounded-xl flex items-center justify-center text-slate-950 font-black text-xl shadow-md shadow-cyan-500/20">
+      <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-30 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-tr from-cyan-500 to-teal-400 rounded-xl flex items-center justify-center text-slate-950 font-black text-lg md:text-xl shadow-md shadow-cyan-500/20 flex-shrink-0">
             A
           </div>
           <div>
-            <h2 className="font-bold text-white text-base leading-tight">ALZERA Admin</h2>
-            <div className="flex items-center gap-2 text-xs text-slate-400">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              SQLite Engine (portfolio.db)
+            <h2 className="font-bold text-white text-sm md:text-base leading-tight">ALZERA Admin</h2>
+            <div className="flex items-center gap-1.5 text-[10px] md:text-xs text-slate-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="hidden sm:inline">PostgreSQL Engine (portfolio_db)</span>
+              <span className="sm:hidden">PostgreSQL</span>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
+          {/* Hamburger Button Mobile */}
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="md:hidden p-2 rounded-lg hover:bg-white/10 transition text-slate-300 hover:text-white"
+            title="Toggle Sidebar"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {isSidebarOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+
           <a
             href="/"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5"
+            className="px-3 py-1.5 md:px-4 md:py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg transition-all flex items-center gap-1"
           >
-            <span>↗</span> Lihat Website
+            <span>↗</span>
+            <span className="hidden sm:inline">Lihat Website</span>
           </a>
           <button
             onClick={handleLogout}
-            className="px-4 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-semibold rounded-lg transition-all"
+            className="px-3 py-1.5 md:px-4 md:py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-semibold rounded-lg transition-all"
           >
             Keluar
           </button>
@@ -850,25 +619,45 @@ const AdminPage: React.FC = () => {
       </header>
 
       {/* Dashboard Body */}
-      <div className="flex-1 flex max-w-7xl w-full mx-auto p-6 gap-8">
-        {/* Sidebar Nav */}
-        <aside className="w-64 flex-shrink-0 space-y-1.5">
+      <div className="flex-1 flex flex-row max-w-7xl w-full mx-auto md:p-6 md:gap-8">
+        {/* Overlay untuk mobile */}
+        {isSidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-30 md:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+
+        {/* Sidebar Nav — drawer di mobile, sidebar statis di desktop */}
+        <aside className={`
+          w-64 flex-shrink-0 space-y-1.5
+          fixed md:static left-0 top-0 bottom-0 z-40 md:z-auto
+          bg-slate-900 border-r border-slate-800 md:border-0
+          overflow-y-auto overflow-x-hidden
+          pt-20 md:pt-0 px-4 md:px-0 py-4 md:py-0
+          transition-transform duration-300 md:translate-x-0
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}>
           <button
-            onClick={() => setActiveTab('overview')}
-            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center justify-between transition-all ${
+            onClick={() => {
+              setActiveTab('overview');
+              setIsSidebarOpen(false);
+            }}
+            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2.5 transition-all ${
               activeTab === 'overview'
                 ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20 font-bold'
                 : 'text-slate-400 hover:text-white hover:bg-slate-900'
             }`}
           >
-            <div className="flex items-center gap-2.5">
-              <span>📊</span>
-              <span>Ringkasan</span>
-            </div>
+            <span>📊</span>
+            <span>Ringkasan</span>
           </button>
 
           <button
-            onClick={() => setActiveTab('inbox')}
+            onClick={() => {
+              setActiveTab('inbox');
+              setIsSidebarOpen(false);
+            }}
             className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center justify-between transition-all ${
               activeTab === 'inbox'
                 ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20 font-bold'
@@ -887,21 +676,25 @@ const AdminPage: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setActiveTab('profile')}
-            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center justify-between transition-all ${
+            onClick={() => {
+              setActiveTab('profile');
+              setIsSidebarOpen(false);
+            }}
+            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2.5 transition-all ${
               activeTab === 'profile'
                 ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20 font-bold'
                 : 'text-slate-400 hover:text-white hover:bg-slate-900'
             }`}
           >
-            <div className="flex items-center gap-2.5">
-              <span>👤</span>
-              <span>Profil & Hero</span>
-            </div>
+            <span>👤</span>
+            <span>Profil & Hero</span>
           </button>
 
           <button
-            onClick={() => setActiveTab('projects')}
+            onClick={() => {
+              setActiveTab('projects');
+              setIsSidebarOpen(false);
+            }}
             className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center justify-between transition-all ${
               activeTab === 'projects'
                 ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20 font-bold'
@@ -916,67 +709,10 @@ const AdminPage: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setActiveTab('services')}
-            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center justify-between transition-all ${
-              activeTab === 'services'
-                ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20 font-bold'
-                : 'text-slate-400 hover:text-white hover:bg-slate-900'
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <span>🛠️</span>
-              <span>Kelola Layanan</span>
-            </div>
-            <span className="text-xs opacity-60">({services.length})</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('team')}
-            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center justify-between transition-all ${
-              activeTab === 'team'
-                ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20 font-bold'
-                : 'text-slate-400 hover:text-white hover:bg-slate-900'
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <span>👥</span>
-              <span>Kelola Tim</span>
-            </div>
-            <span className="text-xs opacity-60">({teamMembers.length})</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('testimonials')}
-            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center justify-between transition-all ${
-              activeTab === 'testimonials'
-                ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20 font-bold'
-                : 'text-slate-400 hover:text-white hover:bg-slate-900'
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <span>⭐</span>
-              <span>Testimoni</span>
-            </div>
-            <span className="text-xs opacity-60">({testimonials.length})</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('pricing')}
-            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center justify-between transition-all ${
-              activeTab === 'pricing'
-                ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20 font-bold'
-                : 'text-slate-400 hover:text-white hover:bg-slate-900'
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <span>💰</span>
-              <span>Harga Paket</span>
-            </div>
-            <span className="text-xs opacity-60">({pricingPackages.length})</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('hero-cards')}
+            onClick={() => {
+              setActiveTab('hero-cards');
+              setIsSidebarOpen(false);
+            }}
             className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center justify-between transition-all ${
               activeTab === 'hero-cards'
                 ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20 font-bold'
@@ -987,39 +723,44 @@ const AdminPage: React.FC = () => {
               <span>🎨</span>
               <span>Hero Cards</span>
             </div>
-            <span className="text-xs opacity-60">(Carousel)</span>
+            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-cyan-400/20 text-cyan-300 border border-cyan-400/30">Carousel</span>
           </button>
 
           <button
-            onClick={() => setActiveTab('faq')}
-            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center justify-between transition-all ${
+            onClick={() => {
+              setActiveTab('faq');
+              setIsSidebarOpen(false);
+            }}
+            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2.5 transition-all ${
               activeTab === 'faq'
                 ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20 font-bold'
                 : 'text-slate-400 hover:text-white hover:bg-slate-900'
             }`}
           >
-            <div className="flex items-center gap-2.5">
-              <span>❓</span>
-              <span>FAQ</span>
-            </div>
+            <span>❓</span>
+            <span>FAQ</span>
           </button>
 
           <button
-            onClick={() => setActiveTab('about-sections')}
-            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center justify-between transition-all ${
+            onClick={() => {
+              setActiveTab('about-sections');
+              setIsSidebarOpen(false);
+            }}
+            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2.5 transition-all ${
               activeTab === 'about-sections'
                 ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20 font-bold'
                 : 'text-slate-400 hover:text-white hover:bg-slate-900'
             }`}
           >
-            <div className="flex items-center gap-2.5">
-              <span>📝</span>
-              <span>About Sections</span>
-            </div>
+            <span>📝</span>
+            <span>About Sections</span>
           </button>
 
           <button
-            onClick={() => setActiveTab('preview')}
+            onClick={() => {
+              setActiveTab('preview');
+              setIsSidebarOpen(false);
+            }}
             className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center justify-between transition-all ${
               activeTab === 'preview'
                 ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20 font-bold'
@@ -1030,14 +771,12 @@ const AdminPage: React.FC = () => {
               <span>📱</span>
               <span>Preview Web</span>
             </div>
-            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-cyan-400/20 text-cyan-300 border border-cyan-400/30">
-              Live
-            </span>
+            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-cyan-400/20 text-cyan-300 border border-cyan-400/30">Live</span>
           </button>
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 bg-slate-900/60 border border-slate-800 rounded-3xl p-8 backdrop-blur-md">
+        <main className="flex-1 bg-slate-900/60 border border-slate-800 rounded-3xl p-4 md:p-8 backdrop-blur-md overflow-x-hidden">
           {/* TAB 1: OVERVIEW */}
           {activeTab === 'overview' && (
             <div>
@@ -1076,53 +815,6 @@ const AdminPage: React.FC = () => {
                   </button>
                 </div>
 
-                <div className="bg-slate-800/80 border border-slate-700/60 p-6 rounded-2xl relative overflow-hidden">
-                  <div className="text-3xl font-black text-indigo-400 mb-1">{services.length}</div>
-                  <div className="text-sm font-semibold text-slate-200">Layanan Aktif</div>
-                  <div className="text-xs text-slate-400 mt-2">Ditampilkan pada halaman utama</div>
-                  <button
-                    onClick={() => setActiveTab('services')}
-                    className="mt-4 text-xs font-semibold text-indigo-400 hover:underline flex items-center gap-1"
-                  >
-                    Kelola Layanan →
-                  </button>
-                </div>
-
-                <div className="bg-slate-800/80 border border-slate-700/60 p-6 rounded-2xl relative overflow-hidden">
-                  <div className="text-3xl font-black text-emerald-400 mb-1">{teamMembers.length}</div>
-                  <div className="text-sm font-semibold text-slate-200">Anggota Tim</div>
-                  <div className="text-xs text-slate-400 mt-2">Daftar tim profesional</div>
-                  <button
-                    onClick={() => setActiveTab('team')}
-                    className="mt-4 text-xs font-semibold text-emerald-400 hover:underline flex items-center gap-1"
-                  >
-                    Kelola Tim →
-                  </button>
-                </div>
-
-                <div className="bg-slate-800/80 border border-slate-700/60 p-6 rounded-2xl relative overflow-hidden">
-                  <div className="text-3xl font-black text-amber-400 mb-1">{testimonials.length}</div>
-                  <div className="text-sm font-semibold text-slate-200">Testimoni Klien</div>
-                  <div className="text-xs text-slate-400 mt-2">Ulasan dan rating kepuasan</div>
-                  <button
-                    onClick={() => setActiveTab('testimonials')}
-                    className="mt-4 text-xs font-semibold text-amber-400 hover:underline flex items-center gap-1"
-                  >
-                    Kelola Testimoni →
-                  </button>
-                </div>
-
-                <div className="bg-slate-800/80 border border-slate-700/60 p-6 rounded-2xl relative overflow-hidden">
-                  <div className="text-3xl font-black text-purple-400 mb-1">{pricingPackages.length}</div>
-                  <div className="text-sm font-semibold text-slate-200">Paket Harga</div>
-                  <div className="text-xs text-slate-400 mt-2">Daftar paket dan harga layanan</div>
-                  <button
-                    onClick={() => setActiveTab('pricing')}
-                    className="mt-4 text-xs font-semibold text-purple-400 hover:underline flex items-center gap-1"
-                  >
-                    Kelola Harga Paket →
-                  </button>
-                </div>
               </div>
 
               {/* System Info Box */}
@@ -1132,17 +824,17 @@ const AdminPage: React.FC = () => {
                 </h3>
                 <div className="text-sm text-slate-300 space-y-2">
                   <p>
-                    <strong className="text-slate-400">Database Engine:</strong> SQLite 3 (High-performance WAL Mode)
+                    <strong className="text-slate-400">Database Engine:</strong> PostgreSQL 18
                   </p>
                   <p>
-                    <strong className="text-slate-400">Letak Berkas Fisik:</strong>{' '}
+                    <strong className="text-slate-400">Host:</strong>{' '}
                     <code className="bg-slate-950 px-2 py-0.5 rounded text-cyan-300 text-xs">
-                      backend/portfolio.db
+                      localhost:5432
                     </code>
                   </p>
                   <p>
-                    <strong className="text-slate-400">Metode Backup:</strong> Cukup salin berkas{' '}
-                    <code className="text-xs text-slate-200">portfolio.db</code> atau seluruh folder proyek.
+                    <strong className="text-slate-400">Metode Backup:</strong> Gunakan{' '}
+                    <code className="text-xs text-slate-200">pg_dump portfolio_db</code> untuk export database.
                   </p>
                 </div>
               </div>
@@ -1542,7 +1234,7 @@ const AdminPage: React.FC = () => {
                 {/* SUBMIT BUTTON */}
                 <div className="sticky bottom-6 z-20 bg-slate-900/90 backdrop-blur-md p-4 rounded-2xl border border-slate-800 shadow-2xl flex items-center justify-between">
                   <span className="text-xs text-slate-400">
-                    Perubahan langsung disimpan ke database SQLite (<code className="text-cyan-400">portfolio.db</code>).
+                    Perubahan langsung disimpan ke database PostgreSQL (<code className="text-cyan-400">portfolio_db</code>).
                   </span>
                   <button
                     type="submit"
@@ -1642,169 +1334,7 @@ const AdminPage: React.FC = () => {
             </div>
           )}
 
-          {/* TAB 5: SERVICES */}
-          {activeTab === 'services' && (
-            <div>
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h2 className="text-2xl font-bold text-white">Kelola Layanan</h2>
-                  <p className="text-slate-400 text-sm mt-1">
-                    Atur layanan dan fitur yang kamu tawarkan kepada klien.
-                  </p>
-                </div>
-                <button
-                  onClick={openAddService}
-                  className="px-5 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm rounded-xl transition-all shadow-lg shadow-cyan-500/20 flex items-center gap-1.5"
-                >
-                  <span>+</span> Tambah Layanan
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {services.map((s) => (
-                  <div
-                    key={s.id}
-                    className="bg-slate-800/80 border border-slate-700/60 p-6 rounded-2xl flex flex-col justify-between"
-                  >
-                    <div>
-                      <div className="text-4xl mb-3">{s.icon}</div>
-                      <h4 className="font-bold text-lg text-white mb-2">{s.title}</h4>
-                      <p className="text-xs text-slate-400 mb-4">{s.description}</p>
-                      <ul className="space-y-1.5 mb-6 text-xs text-slate-300">
-                        {s.features &&
-                          s.features.map((f, idx) => (
-                            <li key={idx} className="flex items-center gap-1.5">
-                              <span className="text-cyan-400">✓</span> {f}
-                            </li>
-                          ))}
-                      </ul>
-                    </div>
-
-                    <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-700/60 text-xs">
-                      <button
-                        onClick={() => openEditService(s)}
-                        className="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg transition-all"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteService(s.id)}
-                        className="px-3 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-lg transition-all"
-                      >
-                        Hapus
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* TAB 6: TEAM */}
-          {activeTab === 'team' && (
-            <div>
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h2 className="text-2xl font-bold text-white">Kelola Anggota Tim</h2>
-                  <p className="text-slate-400 text-sm mt-1">Tambah, perbarui, atau hapus anggota tim yang ditampilkan.</p>
-                </div>
-                <button onClick={openAddTeam} className="px-5 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm rounded-xl transition-all shadow-lg shadow-cyan-500/20 flex items-center gap-1.5">
-                  <span>+</span> Tambah Anggota
-                </button>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {teamMembers.map((t) => (
-                  <div key={t.id} className="bg-slate-800/80 border border-slate-700/60 p-6 rounded-2xl flex flex-col items-center text-center gap-3">
-                    <img src={t.image || '/founder.jpeg'} alt={t.name} className="w-20 h-20 rounded-full object-cover border-4 border-slate-700" />
-                    <div>
-                      <h4 className="font-bold text-white text-base">{t.name}</h4>
-                      <p className="text-cyan-400 text-xs font-semibold mt-0.5">{t.role}</p>
-                      <p className="text-slate-400 text-xs mt-2 line-clamp-2">{t.bio}</p>
-                    </div>
-                    <div className="flex gap-2 mt-2">
-                      <button onClick={() => openEditTeam(t)} className="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs rounded-lg transition-all">Edit</button>
-                      <button onClick={() => handleDeleteTeam(t.id)} className="px-3 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs rounded-lg transition-all">Hapus</button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* TAB 7: TESTIMONIALS */}
-          {activeTab === 'testimonials' && (
-            <div>
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h2 className="text-2xl font-bold text-white">Kelola Testimoni</h2>
-                  <p className="text-slate-400 text-sm mt-1">Kelola ulasan dan testimoni dari klien yang ditampilkan.</p>
-                </div>
-                <button onClick={openAddTesti} className="px-5 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm rounded-xl transition-all shadow-lg shadow-cyan-500/20 flex items-center gap-1.5">
-                  <span>+</span> Tambah Testimoni
-                </button>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {testimonials.map((t) => (
-                  <div key={t.id} className="bg-slate-800/80 border border-slate-700/60 p-6 rounded-2xl">
-                    <div className="text-yellow-400 text-lg mb-3">{'⭐'.repeat(Math.min(t.rating, 5))}</div>
-                    <p className="text-slate-300 text-sm italic mb-4 line-clamp-3">"{t.content}"</p>
-                    <div className="flex items-center gap-3 mb-4">
-                      <img src={t.photo} alt={t.name} className="w-10 h-10 rounded-full object-cover border-2 border-cyan-800" />
-                      <div>
-                        <p className="text-white font-bold text-sm">{t.name}</p>
-                        <p className="text-slate-400 text-xs">{t.role}</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-2 border-t border-slate-700/50 pt-4">
-                      <button onClick={() => openEditTesti(t)} className="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs rounded-lg transition-all">Edit</button>
-                      <button onClick={() => handleDeleteTesti(t.id)} className="px-3 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs rounded-lg transition-all">Hapus</button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* TAB 8: PRICING */}
-          {activeTab === 'pricing' && (
-            <div>
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h2 className="text-2xl font-bold text-white">Kelola Paket Harga</h2>
-                  <p className="text-slate-400 text-sm mt-1">Atur paket harga layanan yang ditawarkan kepada calon klien.</p>
-                </div>
-                <button onClick={openAddPricing} className="px-5 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm rounded-xl transition-all shadow-lg shadow-cyan-500/20 flex items-center gap-1.5">
-                  <span>+</span> Tambah Paket
-                </button>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {pricingPackages.map((pkg) => (
-                  <div key={pkg.id} className={`p-6 rounded-2xl border-2 flex flex-col justify-between ${
-                    pkg.popular ? 'border-cyan-500 bg-cyan-900/20' : 'border-slate-700 bg-slate-800/80'
-                  }`}>
-                    <div>
-                      {pkg.popular && <span className="inline-block bg-cyan-500 text-slate-950 px-3 py-0.5 rounded-full text-xs font-bold mb-3">Populer</span>}
-                      <h4 className="font-bold text-white text-lg mb-1">{pkg.name}</h4>
-                      <p className="text-cyan-400 text-2xl font-black mb-4">{pkg.price}</p>
-                      <ul className="space-y-1.5 mb-4">
-                        {pkg.features?.map((f, i) => (
-                          <li key={i} className="flex items-center gap-1.5 text-xs text-slate-300">
-                            <span className="text-cyan-400">✓</span> {f}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div className="flex gap-2 pt-4 border-t border-slate-700/50">
-                      <button onClick={() => openEditPricing(pkg)} className="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs rounded-lg transition-all">Edit</button>
-                      <button onClick={() => handleDeletePricing(pkg.id)} className="px-3 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs rounded-lg transition-all">Hapus</button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* TAB 9: HERO CARDS */}
+          {/* TAB 5: HERO CARDS */}
           {activeTab === 'hero-cards' && (
             <HeroCardsPage />
           )}
@@ -1817,11 +1347,6 @@ const AdminPage: React.FC = () => {
           {/* TAB 11: ABOUT SECTIONS */}
           {activeTab === 'about-sections' && (
             <AboutSectionsAdmin />
-          )}
-
-          {/* TAB 12: TRANSLATIONS */}
-          {activeTab === 'translations' && (
-            <TranslationAdmin />
           )}
 
           {/* TAB 13: LIVE PREVIEW */}
@@ -1994,14 +1519,18 @@ const AdminPage: React.FC = () => {
                 <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">
                   Kategori
                 </label>
-                <input
-                  type="text"
+                <select
                   required
                   value={projectForm.category}
                   onChange={(e) => setProjectForm({ ...projectForm, category: e.target.value })}
-                  placeholder="Contoh: Full-Stack Web, Mobile App"
-                  className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm"
-                />
+                  className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-cyan-400"
+                >
+                  {PROJECT_CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>
@@ -2032,26 +1561,53 @@ const AdminPage: React.FC = () => {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">
-                  URL Gambar (Thumbnail)
+                  Gambar Project
                 </label>
-                <input
-                  type="url"
-                  value={projectForm.image}
-                  onChange={(e) => setProjectForm({ ...projectForm, image: e.target.value })}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm"
-                />
+                <div className="flex gap-3">
+                  <label className="flex-1 px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-700 transition-colors flex items-center justify-center gap-2 text-sm text-slate-300">
+                    <span>🖼️ Pilih Gambar</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleProjectImageUpload}
+                      disabled={isUploadingImage}
+                      className="hidden"
+                    />
+                  </label>
+                  {isUploadingImage && (
+                    <div className="flex items-center gap-2 text-xs text-slate-400">
+                      <div className="w-4 h-4 border-2 border-slate-600 border-t-cyan-400 rounded-full animate-spin"></div>
+                      Upload...
+                    </div>
+                  )}
+                </div>
+                {projectForm.image && (
+                  <div className="mt-2 relative w-full h-32 bg-slate-800 rounded-lg overflow-hidden border border-slate-700">
+                    <img
+                      src={projectForm.image}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setProjectForm({ ...projectForm, image: '' })}
+                      className="absolute top-1 right-1 px-2 py-1 bg-red-500 hover:bg-red-600 text-white text-xs rounded"
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">
-                  Link Proyek / GitHub
+                  Link Proyek / GitHub <span className="text-slate-500">(opsional)</span>
                 </label>
                 <input
                   type="url"
                   value={projectForm.link}
                   onChange={(e) => setProjectForm({ ...projectForm, link: e.target.value })}
-                  placeholder="https://github.com/..."
+                  placeholder="https://github.com/... atau live link"
                   className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm"
                 />
               </div>
@@ -2066,9 +1622,10 @@ const AdminPage: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm rounded-xl shadow-lg shadow-cyan-500/20"
+                  disabled={!projectForm.title || !projectForm.description || !projectForm.image}
+                  className="px-5 py-2 bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed text-slate-950 font-bold text-sm rounded-xl shadow-lg shadow-cyan-500/20 transition-all"
                 >
-                  Simpan Proyek
+                  {editingProject ? 'Update Proyek' : 'Simpan Proyek'}
                 </button>
               </div>
             </form>
@@ -2076,191 +1633,6 @@ const AdminPage: React.FC = () => {
         </div>
       )}
 
-      {/* MODAL: LAYANAN */}
-      {isServiceModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-6">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl">
-            <h3 className="font-bold text-lg text-white mb-4">
-              {editingService ? 'Edit Layanan' : 'Tambah Layanan Baru'}
-            </h3>
-            <form onSubmit={handleSaveService} className="space-y-4">
-              <div className="grid grid-cols-4 gap-4">
-                <div className="col-span-1">
-                  <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">
-                    Icon Emoji
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={serviceForm.icon}
-                    onChange={(e) => setServiceForm({ ...serviceForm, icon: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-center text-lg"
-                  />
-                </div>
-                <div className="col-span-3">
-                  <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">
-                    Nama Layanan
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={serviceForm.title}
-                    onChange={(e) => setServiceForm({ ...serviceForm, title: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">
-                  Deskripsi
-                </label>
-                <textarea
-                  rows={2}
-                  required
-                  value={serviceForm.description}
-                  onChange={(e) => setServiceForm({ ...serviceForm, description: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">
-                  Daftar Fitur (Pisahkan dengan koma)
-                </label>
-                <input
-                  type="text"
-                  value={serviceForm.featuresInput}
-                  onChange={(e) =>
-                    setServiceForm({ ...serviceForm, featuresInput: e.target.value })
-                  }
-                  placeholder="Responsive Design, Fast Loading, SEO Friendly"
-                  className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setIsServiceModalOpen(false)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm rounded-xl"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm rounded-xl shadow-lg shadow-cyan-500/20"
-                >
-                  Simpan Layanan
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL: TIM */}
-      {isTeamModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-6">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl">
-            <h3 className="font-bold text-lg text-white mb-4">{editingTeam ? 'Edit Anggota Tim' : 'Tambah Anggota Tim'}</h3>
-            <form onSubmit={handleSaveTeam} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">Nama</label>
-                <input type="text" required value={teamForm.name} onChange={e => setTeamForm({...teamForm, name: e.target.value})} className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm" />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">Jabatan / Role</label>
-                <input type="text" required value={teamForm.role} onChange={e => setTeamForm({...teamForm, role: e.target.value})} placeholder="Founder & Full Stack Developer" className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm" />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">Bio Singkat</label>
-                <textarea rows={2} value={teamForm.bio} onChange={e => setTeamForm({...teamForm, bio: e.target.value})} className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm" />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">URL / Path Foto</label>
-                <input type="text" value={teamForm.image} onChange={e => setTeamForm({...teamForm, image: e.target.value})} placeholder="/founder.jpeg atau https://..." className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm font-mono" />
-              </div>
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
-                <button type="button" onClick={() => setIsTeamModalOpen(false)} className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm rounded-xl">Batal</button>
-                <button type="submit" className="px-5 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm rounded-xl shadow-lg shadow-cyan-500/20">Simpan</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL: TESTIMONI */}
-      {isTestiModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-6">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl">
-            <h3 className="font-bold text-lg text-white mb-4">{editingTesti ? 'Edit Testimoni' : 'Tambah Testimoni Baru'}</h3>
-            <form onSubmit={handleSaveTesti} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">Nama Klien</label>
-                  <input type="text" required value={testiForm.name} onChange={e => setTestiForm({...testiForm, name: e.target.value})} className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm" />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">Jabatan / Role</label>
-                  <input type="text" value={testiForm.role} onChange={e => setTestiForm({...testiForm, role: e.target.value})} placeholder="CEO, Owner, dsb." className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm" />
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">Isi Testimoni</label>
-                <textarea rows={3} required value={testiForm.content} onChange={e => setTestiForm({...testiForm, content: e.target.value})} className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm" />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">Rating (1-5)</label>
-                  <input type="number" min={1} max={5} value={testiForm.rating} onChange={e => setTestiForm({...testiForm, rating: Number(e.target.value)})} className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm" />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">URL Foto Profil</label>
-                  <input type="text" value={testiForm.photo} onChange={e => setTestiForm({...testiForm, photo: e.target.value})} placeholder="https://..." className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm font-mono" />
-                </div>
-              </div>
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
-                <button type="button" onClick={() => setIsTestiModalOpen(false)} className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm rounded-xl">Batal</button>
-                <button type="submit" className="px-5 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm rounded-xl shadow-lg shadow-cyan-500/20">Simpan</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL: HARGA PAKET */}
-      {isPricingModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-6">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl">
-            <h3 className="font-bold text-lg text-white mb-4">{editingPricing ? 'Edit Paket Harga' : 'Tambah Paket Harga Baru'}</h3>
-            <form onSubmit={handleSavePricing} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">Nama Paket</label>
-                  <input type="text" required value={pricingForm.name} onChange={e => setPricingForm({...pricingForm, name: e.target.value})} placeholder="Business Website" className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm" />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">Harga</label>
-                  <input type="text" required value={pricingForm.price} onChange={e => setPricingForm({...pricingForm, price: e.target.value})} placeholder="Rp 1,2JT" className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm" />
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <input type="checkbox" id="popularCheck" checked={pricingForm.popular} onChange={e => setPricingForm({...pricingForm, popular: e.target.checked})} className="w-4 h-4 accent-cyan-500" />
-                <label htmlFor="popularCheck" className="text-sm text-slate-300 font-semibold cursor-pointer">Tandai sebagai Paket Paling Populer</label>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">Fitur-Fitur (Pisahkan dengan koma)</label>
-                <textarea rows={3} value={pricingForm.featuresInput} onChange={e => setPricingForm({...pricingForm, featuresInput: e.target.value})} placeholder="Responsive Design, SEO Optimization, Admin Panel" className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm" />
-              </div>
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
-                <button type="button" onClick={() => setIsPricingModalOpen(false)} className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm rounded-xl">Batal</button>
-                <button type="submit" className="px-5 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm rounded-xl shadow-lg shadow-cyan-500/20">Simpan</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

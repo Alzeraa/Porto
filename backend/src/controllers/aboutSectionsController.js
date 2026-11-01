@@ -1,13 +1,10 @@
-const db = require('../config/database');
+const pool = require('../config/database');
 
 // GET all About Sections (Public)
-exports.getAllAboutSections = (req, res) => {
+exports.getAllAboutSections = async (req, res) => {
   try {
-    const rows = db.prepare('SELECT * FROM about_sections ORDER BY order_index ASC, id ASC').all();
-    const formatted = rows.map(r => ({
-      ...r,
-      items: r.items ? JSON.parse(r.items) : []
-    }));
+    const { rows } = await pool.query('SELECT * FROM about_sections ORDER BY order_index ASC, id ASC');
+    const formatted = rows.map(r => ({ ...r, items: r.items ? JSON.parse(r.items) : [] }));
     res.json({ status: 'success', data: formatted });
   } catch (error) {
     console.error('Error fetching About Sections:', error);
@@ -16,7 +13,7 @@ exports.getAllAboutSections = (req, res) => {
 };
 
 // POST add About Section (Admin)
-exports.createAboutSection = (req, res) => {
+exports.createAboutSection = async (req, res) => {
   try {
     const { type, title, subtitle, items, order_index } = req.body;
     if (!type || !title) {
@@ -24,16 +21,12 @@ exports.createAboutSection = (req, res) => {
     }
 
     const itemsStr = Array.isArray(items) ? JSON.stringify(items) : JSON.stringify([]);
-    
-    const stmt = db.prepare(`
-      INSERT INTO about_sections (type, title, subtitle, items, order_index)
-      VALUES (?, ?, ?, ?, ?)
-    `);
-    const result = stmt.run(type, title, subtitle || '', itemsStr, order_index || 0);
-
-    const created = db.prepare('SELECT * FROM about_sections WHERE id = ?').get(result.lastInsertRowid);
-    created.items = JSON.parse(created.items);
-
+    const { rows } = await pool.query(
+      `INSERT INTO about_sections (type, title, subtitle, items, order_index)
+       VALUES ($1,$2,$3,$4,$5) RETURNING *`,
+      [type, title, subtitle || '', itemsStr, order_index || 0]
+    );
+    const created = { ...rows[0], items: JSON.parse(rows[0].items) };
     res.status(201).json({ status: 'success', message: 'About Section berhasil ditambahkan!', data: created });
   } catch (error) {
     console.error('Create About Section error:', error);
@@ -42,38 +35,32 @@ exports.createAboutSection = (req, res) => {
 };
 
 // PUT update About Section (Admin)
-exports.updateAboutSection = (req, res) => {
+exports.updateAboutSection = async (req, res) => {
   try {
     const { id } = req.params;
     const { type, title, subtitle, items, order_index } = req.body;
 
-    const existing = db.prepare('SELECT * FROM about_sections WHERE id = ?').get(id);
+    const existing = (await pool.query('SELECT * FROM about_sections WHERE id = $1', [id])).rows[0];
     if (!existing) {
       return res.status(404).json({ status: 'error', message: 'About Section tidak ditemukan.' });
     }
 
-    const itemsStr = items ? (Array.isArray(items) ? JSON.stringify(items) : JSON.stringify([items])) : existing.items;
+    const itemsStr = items
+      ? (Array.isArray(items) ? JSON.stringify(items) : JSON.stringify([items]))
+      : existing.items;
 
-    db.prepare(`
+    const { rows } = await pool.query(`
       UPDATE about_sections SET
-        type = COALESCE(?, type),
-        title = COALESCE(?, title),
-        subtitle = COALESCE(?, subtitle),
-        items = ?,
-        order_index = COALESCE(?, order_index)
-      WHERE id = ?
-    `).run(
-      type ?? null,
-      title ?? null,
-      subtitle ?? null,
-      itemsStr,
-      order_index ?? null,
-      id
-    );
+        type        = COALESCE($1, type),
+        title       = COALESCE($2, title),
+        subtitle    = COALESCE($3, subtitle),
+        items       = $4,
+        order_index = COALESCE($5, order_index)
+      WHERE id = $6
+      RETURNING *
+    `, [type ?? null, title ?? null, subtitle ?? null, itemsStr, order_index ?? null, id]);
 
-    const updated = db.prepare('SELECT * FROM about_sections WHERE id = ?').get(id);
-    updated.items = JSON.parse(updated.items);
-
+    const updated = { ...rows[0], items: JSON.parse(rows[0].items) };
     res.json({ status: 'success', message: 'About Section berhasil diperbarui!', data: updated });
   } catch (error) {
     console.error('Update About Section error:', error);
@@ -82,11 +69,11 @@ exports.updateAboutSection = (req, res) => {
 };
 
 // DELETE About Section (Admin)
-exports.deleteAboutSection = (req, res) => {
+exports.deleteAboutSection = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = db.prepare('DELETE FROM about_sections WHERE id = ?').run(id);
-    if (result.changes === 0) {
+    const result = await pool.query('DELETE FROM about_sections WHERE id = $1 RETURNING id', [id]);
+    if (result.rows.length === 0) {
       return res.status(404).json({ status: 'error', message: 'About Section tidak ditemukan.' });
     }
     res.json({ status: 'success', message: 'About Section berhasil dihapus.' });

@@ -1,10 +1,10 @@
-const db = require('../config/database');
+const pool = require('../config/database');
 
 // GET all hero cards
-const getAllHeroCards = (req, res) => {
+const getAllHeroCards = async (req, res) => {
   try {
-    const cards = db.prepare('SELECT * FROM hero_cards ORDER BY order_index ASC').all();
-    res.json({ status: 'success', data: cards });
+    const { rows } = await pool.query('SELECT * FROM hero_cards ORDER BY order_index ASC');
+    res.json({ status: 'success', data: rows });
   } catch (err) {
     console.error('Error fetching hero cards:', err);
     res.status(500).json({ status: 'error', message: err.message });
@@ -12,16 +12,14 @@ const getAllHeroCards = (req, res) => {
 };
 
 // GET single hero card by ID
-const getHeroCardById = (req, res) => {
+const getHeroCardById = async (req, res) => {
   try {
     const { id } = req.params;
-    const card = db.prepare('SELECT * FROM hero_cards WHERE id = ?').get(id);
-    
-    if (!card) {
+    const { rows } = await pool.query('SELECT * FROM hero_cards WHERE id = $1', [id]);
+    if (rows.length === 0) {
       return res.status(404).json({ status: 'error', message: 'Hero card not found' });
     }
-    
-    res.json({ status: 'success', data: card });
+    res.json({ status: 'success', data: rows[0] });
   } catch (err) {
     console.error('Error fetching hero card:', err);
     res.status(500).json({ status: 'error', message: err.message });
@@ -29,26 +27,22 @@ const getHeroCardById = (req, res) => {
 };
 
 // CREATE new hero card
-const createHeroCard = (req, res) => {
+const createHeroCard = async (req, res) => {
   try {
     const { title, image, description } = req.body;
-
     if (!title || !image) {
       return res.status(400).json({ status: 'error', message: 'Title and image are required' });
     }
 
-    // Get max order_index
-    const maxOrder = db.prepare('SELECT MAX(order_index) as max_order FROM hero_cards').get();
-    const nextOrder = (maxOrder.max_order || 0) + 1;
+    const { rows: maxRows } = await pool.query('SELECT MAX(order_index) as max_order FROM hero_cards');
+    const nextOrder = (maxRows[0].max_order || 0) + 1;
 
-    const result = db.prepare(`
-      INSERT INTO hero_cards (title, image, description, order_index)
-      VALUES (?, ?, ?, ?)
-    `).run(title, image, description || null, nextOrder);
-
-    const newCard = db.prepare('SELECT * FROM hero_cards WHERE id = ?').get(result.lastInsertRowid);
-    
-    res.status(201).json({ status: 'success', data: newCard, message: 'Hero card created' });
+    const { rows } = await pool.query(
+      `INSERT INTO hero_cards (title, image, description, order_index)
+       VALUES ($1,$2,$3,$4) RETURNING *`,
+      [title, image, description || null, nextOrder]
+    );
+    res.status(201).json({ status: 'success', data: rows[0], message: 'Hero card created' });
   } catch (err) {
     console.error('Error creating hero card:', err);
     res.status(500).json({ status: 'error', message: err.message });
@@ -56,30 +50,33 @@ const createHeroCard = (req, res) => {
 };
 
 // UPDATE hero card
-const updateHeroCard = (req, res) => {
+const updateHeroCard = async (req, res) => {
   try {
     const { id } = req.params;
     const { title, image, description, order_index } = req.body;
 
-    const card = db.prepare('SELECT * FROM hero_cards WHERE id = ?').get(id);
-    if (!card) {
+    const existing = (await pool.query('SELECT * FROM hero_cards WHERE id = $1', [id])).rows[0];
+    if (!existing) {
       return res.status(404).json({ status: 'error', message: 'Hero card not found' });
     }
 
-    db.prepare(`
-      UPDATE hero_cards 
-      SET title = ?, image = ?, description = ?, order_index = ?, updated_at = CURRENT_TIMESTAMP
-      WHERE id = ?
-    `).run(
-      title || card.title,
-      image || card.image,
-      description !== undefined ? description : card.description,
-      order_index !== undefined ? order_index : card.order_index,
-      id
-    );
-
-    const updatedCard = db.prepare('SELECT * FROM hero_cards WHERE id = ?').get(id);
-    res.json({ status: 'success', data: updatedCard, message: 'Hero card updated' });
+    const { rows } = await pool.query(`
+      UPDATE hero_cards SET
+        title       = $1,
+        image       = $2,
+        description = $3,
+        order_index = $4,
+        updated_at  = NOW()
+      WHERE id = $5
+      RETURNING *
+    `, [
+      title || existing.title,
+      image || existing.image,
+      description !== undefined ? description : existing.description,
+      order_index !== undefined ? order_index : existing.order_index,
+      id,
+    ]);
+    res.json({ status: 'success', data: rows[0], message: 'Hero card updated' });
   } catch (err) {
     console.error('Error updating hero card:', err);
     res.status(500).json({ status: 'error', message: err.message });
@@ -87,17 +84,13 @@ const updateHeroCard = (req, res) => {
 };
 
 // DELETE hero card
-const deleteHeroCard = (req, res) => {
+const deleteHeroCard = async (req, res) => {
   try {
     const { id } = req.params;
-
-    const card = db.prepare('SELECT * FROM hero_cards WHERE id = ?').get(id);
-    if (!card) {
+    const result = await pool.query('DELETE FROM hero_cards WHERE id = $1 RETURNING id', [id]);
+    if (result.rows.length === 0) {
       return res.status(404).json({ status: 'error', message: 'Hero card not found' });
     }
-
-    db.prepare('DELETE FROM hero_cards WHERE id = ?').run(id);
-    
     res.json({ status: 'success', message: 'Hero card deleted' });
   } catch (err) {
     console.error('Error deleting hero card:', err);
@@ -106,33 +99,33 @@ const deleteHeroCard = (req, res) => {
 };
 
 // REORDER hero cards
-const reorderHeroCards = (req, res) => {
+const reorderHeroCards = async (req, res) => {
   try {
-    const { cards } = req.body; // Array of {id, order_index}
-
+    const { cards } = req.body;
     if (!Array.isArray(cards) || cards.length === 0) {
       return res.status(400).json({ status: 'error', message: 'Cards array is required' });
     }
 
-    const updateStmt = db.prepare('UPDATE hero_cards SET order_index = ? WHERE id = ?');
-    
-    for (const card of cards) {
-      updateStmt.run(card.order_index, card.id);
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      for (const card of cards) {
+        await client.query('UPDATE hero_cards SET order_index = $1 WHERE id = $2', [card.order_index, card.id]);
+      }
+      await client.query('COMMIT');
+    } catch (e) {
+      await client.query('ROLLBACK');
+      throw e;
+    } finally {
+      client.release();
     }
 
-    const updated = db.prepare('SELECT * FROM hero_cards ORDER BY order_index ASC').all();
-    res.json({ status: 'success', data: updated, message: 'Hero cards reordered' });
+    const { rows } = await pool.query('SELECT * FROM hero_cards ORDER BY order_index ASC');
+    res.json({ status: 'success', data: rows, message: 'Hero cards reordered' });
   } catch (err) {
     console.error('Error reordering hero cards:', err);
     res.status(500).json({ status: 'error', message: err.message });
   }
 };
 
-module.exports = {
-  getAllHeroCards,
-  getHeroCardById,
-  createHeroCard,
-  updateHeroCard,
-  deleteHeroCard,
-  reorderHeroCards
-};
+module.exports = { getAllHeroCards, getHeroCardById, createHeroCard, updateHeroCard, deleteHeroCard, reorderHeroCards };

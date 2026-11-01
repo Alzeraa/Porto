@@ -1,13 +1,10 @@
-const db = require('../config/database');
+const pool = require('../config/database');
 
 // GET all services (Public)
-exports.getAllServices = (req, res) => {
+exports.getAllServices = async (req, res) => {
   try {
-    const rows = db.prepare('SELECT * FROM services ORDER BY order_index ASC, id ASC').all();
-    const formatted = rows.map(r => ({
-      ...r,
-      features: JSON.parse(r.features || '[]')
-    }));
+    const { rows } = await pool.query('SELECT * FROM services ORDER BY order_index ASC, id ASC');
+    const formatted = rows.map(r => ({ ...r, features: JSON.parse(r.features || '[]') }));
     res.json({ status: 'success', data: formatted });
   } catch (error) {
     res.status(500).json({ status: 'error', message: 'Gagal memuat layanan.' });
@@ -15,7 +12,7 @@ exports.getAllServices = (req, res) => {
 };
 
 // POST add service (Admin)
-exports.createService = (req, res) => {
+exports.createService = async (req, res) => {
   try {
     const { icon, title, description, features, order_index } = req.body;
     if (!title || !description) {
@@ -23,15 +20,12 @@ exports.createService = (req, res) => {
     }
 
     const featStr = Array.isArray(features) ? JSON.stringify(features) : JSON.stringify([]);
-    const stmt = db.prepare(`
-      INSERT INTO services (icon, title, description, features, order_index)
-      VALUES (?, ?, ?, ?, ?)
-    `);
-    const result = stmt.run(icon || '⚡', title, description, featStr, order_index || 0);
-
-    const created = db.prepare('SELECT * FROM services WHERE id = ?').get(result.lastInsertRowid);
-    created.features = JSON.parse(created.features);
-
+    const { rows } = await pool.query(
+      `INSERT INTO services (icon, title, description, features, order_index)
+       VALUES ($1,$2,$3,$4,$5) RETURNING *`,
+      [icon || '⚡', title, description, featStr, order_index || 0]
+    );
+    const created = { ...rows[0], features: JSON.parse(rows[0].features) };
     res.status(201).json({ status: 'success', message: 'Layanan berhasil ditambahkan!', data: created });
   } catch (error) {
     res.status(500).json({ status: 'error', message: 'Gagal menambahkan layanan.' });
@@ -39,38 +33,32 @@ exports.createService = (req, res) => {
 };
 
 // PUT update service (Admin)
-exports.updateService = (req, res) => {
+exports.updateService = async (req, res) => {
   try {
     const { id } = req.params;
     const { icon, title, description, features, order_index } = req.body;
 
-    const existing = db.prepare('SELECT * FROM services WHERE id = ?').get(id);
+    const existing = (await pool.query('SELECT * FROM services WHERE id = $1', [id])).rows[0];
     if (!existing) {
       return res.status(404).json({ status: 'error', message: 'Layanan tidak ditemukan.' });
     }
 
-    const featStr = features ? (Array.isArray(features) ? JSON.stringify(features) : JSON.stringify([features])) : existing.features;
+    const featStr = features
+      ? (Array.isArray(features) ? JSON.stringify(features) : JSON.stringify([features]))
+      : existing.features;
 
-    db.prepare(`
+    const { rows } = await pool.query(`
       UPDATE services SET
-        icon = COALESCE(?, icon),
-        title = COALESCE(?, title),
-        description = COALESCE(?, description),
-        features = ?,
-        order_index = COALESCE(?, order_index)
-      WHERE id = ?
-    `).run(
-      icon ?? null,
-      title ?? null,
-      description ?? null,
-      featStr,
-      order_index ?? null,
-      id
-    );
+        icon        = COALESCE($1, icon),
+        title       = COALESCE($2, title),
+        description = COALESCE($3, description),
+        features    = $4,
+        order_index = COALESCE($5, order_index)
+      WHERE id = $6
+      RETURNING *
+    `, [icon ?? null, title ?? null, description ?? null, featStr, order_index ?? null, id]);
 
-    const updated = db.prepare('SELECT * FROM services WHERE id = ?').get(id);
-    updated.features = JSON.parse(updated.features);
-
+    const updated = { ...rows[0], features: JSON.parse(rows[0].features) };
     res.json({ status: 'success', message: 'Layanan berhasil diperbarui!', data: updated });
   } catch (error) {
     res.status(500).json({ status: 'error', message: 'Gagal memperbarui layanan.' });
@@ -78,11 +66,11 @@ exports.updateService = (req, res) => {
 };
 
 // DELETE service (Admin)
-exports.deleteService = (req, res) => {
+exports.deleteService = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = db.prepare('DELETE FROM services WHERE id = ?').run(id);
-    if (result.changes === 0) {
+    const result = await pool.query('DELETE FROM services WHERE id = $1 RETURNING id', [id]);
+    if (result.rows.length === 0) {
       return res.status(404).json({ status: 'error', message: 'Layanan tidak ditemukan.' });
     }
     res.json({ status: 'success', message: 'Layanan berhasil dihapus.' });

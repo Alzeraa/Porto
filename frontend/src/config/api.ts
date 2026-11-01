@@ -40,6 +40,7 @@ export const API_ENDPOINTS = {
   theme: `${API_BASE_URL}/api/theme`,
   services: `${API_BASE_URL}/api/services`,
   projects: `${API_BASE_URL}/api/projects`,
+  projectDetails: `${API_BASE_URL}/api/project-details`,
   team: `${API_BASE_URL}/api/team`,
   testimonials: `${API_BASE_URL}/api/testimonials`,
   pricing: `${API_BASE_URL}/api/pricing`,

@@ -1,9 +1,9 @@
-const db = require('../config/database');
+const pool = require('../config/database');
 
 // GET all FAQ items (Public)
-exports.getAllFAQ = (req, res) => {
+exports.getAllFAQ = async (req, res) => {
   try {
-    const rows = db.prepare('SELECT * FROM faq_items ORDER BY order_index ASC, id ASC').all();
+    const { rows } = await pool.query('SELECT * FROM faq_items ORDER BY order_index ASC, id ASC');
     res.json({ status: 'success', data: rows });
   } catch (error) {
     console.error('Error fetching FAQ:', error);
@@ -12,22 +12,19 @@ exports.getAllFAQ = (req, res) => {
 };
 
 // POST add FAQ item (Admin)
-exports.createFAQ = (req, res) => {
+exports.createFAQ = async (req, res) => {
   try {
     const { question, answer, order_index } = req.body;
     if (!question || !answer) {
       return res.status(400).json({ status: 'error', message: 'Pertanyaan dan jawaban wajib diisi!' });
     }
 
-    const stmt = db.prepare(`
-      INSERT INTO faq_items (question, answer, order_index)
-      VALUES (?, ?, ?)
-    `);
-    const result = stmt.run(question, answer, order_index || 0);
-
-    const created = db.prepare('SELECT * FROM faq_items WHERE id = ?').get(result.lastInsertRowid);
-
-    res.status(201).json({ status: 'success', message: 'FAQ berhasil ditambahkan!', data: created });
+    const { rows } = await pool.query(
+      `INSERT INTO faq_items (question, answer, order_index)
+       VALUES ($1,$2,$3) RETURNING *`,
+      [question, answer, order_index || 0]
+    );
+    res.status(201).json({ status: 'success', message: 'FAQ berhasil ditambahkan!', data: rows[0] });
   } catch (error) {
     console.error('Create FAQ error:', error);
     res.status(500).json({ status: 'error', message: 'Gagal menambahkan FAQ.' });
@@ -35,31 +32,26 @@ exports.createFAQ = (req, res) => {
 };
 
 // PUT update FAQ item (Admin)
-exports.updateFAQ = (req, res) => {
+exports.updateFAQ = async (req, res) => {
   try {
     const { id } = req.params;
     const { question, answer, order_index } = req.body;
 
-    const existing = db.prepare('SELECT * FROM faq_items WHERE id = ?').get(id);
+    const existing = (await pool.query('SELECT * FROM faq_items WHERE id = $1', [id])).rows[0];
     if (!existing) {
       return res.status(404).json({ status: 'error', message: 'FAQ tidak ditemukan.' });
     }
 
-    db.prepare(`
+    const { rows } = await pool.query(`
       UPDATE faq_items SET
-        question = COALESCE(?, question),
-        answer = COALESCE(?, answer),
-        order_index = COALESCE(?, order_index)
-      WHERE id = ?
-    `).run(
-      question ?? null,
-      answer ?? null,
-      order_index ?? null,
-      id
-    );
+        question    = COALESCE($1, question),
+        answer      = COALESCE($2, answer),
+        order_index = COALESCE($3, order_index)
+      WHERE id = $4
+      RETURNING *
+    `, [question ?? null, answer ?? null, order_index ?? null, id]);
 
-    const updated = db.prepare('SELECT * FROM faq_items WHERE id = ?').get(id);
-    res.json({ status: 'success', message: 'FAQ berhasil diperbarui!', data: updated });
+    res.json({ status: 'success', message: 'FAQ berhasil diperbarui!', data: rows[0] });
   } catch (error) {
     console.error('Update FAQ error:', error);
     res.status(500).json({ status: 'error', message: 'Gagal memperbarui FAQ.' });
@@ -67,11 +59,11 @@ exports.updateFAQ = (req, res) => {
 };
 
 // DELETE FAQ item (Admin)
-exports.deleteFAQ = (req, res) => {
+exports.deleteFAQ = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = db.prepare('DELETE FROM faq_items WHERE id = ?').run(id);
-    if (result.changes === 0) {
+    const result = await pool.query('DELETE FROM faq_items WHERE id = $1 RETURNING id', [id]);
+    if (result.rows.length === 0) {
       return res.status(404).json({ status: 'error', message: 'FAQ tidak ditemukan.' });
     }
     res.json({ status: 'success', message: 'FAQ berhasil dihapus.' });

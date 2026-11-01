@@ -1,9 +1,9 @@
-const db = require('../config/database');
+const pool = require('../config/database');
 
 // GET all testimonials (Public)
-exports.getAllTestimonials = (req, res) => {
+exports.getAllTestimonials = async (req, res) => {
   try {
-    const rows = db.prepare('SELECT * FROM testimonials ORDER BY order_index ASC, id ASC').all();
+    const { rows } = await pool.query('SELECT * FROM testimonials ORDER BY order_index ASC, id ASC');
     res.json({ status: 'success', data: rows });
   } catch (error) {
     res.status(500).json({ status: 'error', message: 'Gagal memuat testimoni.' });
@@ -11,18 +11,19 @@ exports.getAllTestimonials = (req, res) => {
 };
 
 // POST add testimonial (Admin)
-exports.createTestimonial = (req, res) => {
+exports.createTestimonial = async (req, res) => {
   try {
     const { name, role, content, rating, photo, order_index } = req.body;
     if (!name || !content) {
       return res.status(400).json({ status: 'error', message: 'Nama dan isi testimoni wajib diisi!' });
     }
 
-    const stmt = db.prepare(`INSERT INTO testimonials (name, role, content, rating, photo, order_index) VALUES (?, ?, ?, ?, ?, ?)`);
-    const result = stmt.run(name, role || '', content, rating || 5, photo || '', order_index || 0);
-    const created = db.prepare('SELECT * FROM testimonials WHERE id = ?').get(result.lastInsertRowid);
-
-    res.status(201).json({ status: 'success', message: 'Testimoni berhasil ditambahkan!', data: created });
+    const { rows } = await pool.query(
+      `INSERT INTO testimonials (name, role, content, rating, photo, order_index)
+       VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
+      [name, role || '', content, rating || 5, photo || '', order_index || 0]
+    );
+    res.status(201).json({ status: 'success', message: 'Testimoni berhasil ditambahkan!', data: rows[0] });
   } catch (error) {
     console.error('Create testimonial error:', error);
     res.status(500).json({ status: 'error', message: 'Gagal menambahkan testimoni.' });
@@ -30,37 +31,29 @@ exports.createTestimonial = (req, res) => {
 };
 
 // PUT update testimonial (Admin)
-exports.updateTestimonial = (req, res) => {
+exports.updateTestimonial = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, role, content, rating, photo, order_index } = req.body;
 
-    const existing = db.prepare('SELECT * FROM testimonials WHERE id = ?').get(id);
+    const existing = (await pool.query('SELECT * FROM testimonials WHERE id = $1', [id])).rows[0];
     if (!existing) {
       return res.status(404).json({ status: 'error', message: 'Testimoni tidak ditemukan.' });
     }
 
-    db.prepare(`
+    const { rows } = await pool.query(`
       UPDATE testimonials SET
-        name = COALESCE(?, name),
-        role = COALESCE(?, role),
-        content = COALESCE(?, content),
-        rating = COALESCE(?, rating),
-        photo = COALESCE(?, photo),
-        order_index = COALESCE(?, order_index)
-      WHERE id = ?
-    `).run(
-      name ?? null,
-      role ?? null,
-      content ?? null,
-      rating ?? null,
-      photo ?? null,
-      order_index ?? null,
-      id
-    );
+        name        = COALESCE($1, name),
+        role        = COALESCE($2, role),
+        content     = COALESCE($3, content),
+        rating      = COALESCE($4, rating),
+        photo       = COALESCE($5, photo),
+        order_index = COALESCE($6, order_index)
+      WHERE id = $7
+      RETURNING *
+    `, [name ?? null, role ?? null, content ?? null, rating ?? null, photo ?? null, order_index ?? null, id]);
 
-    const updated = db.prepare('SELECT * FROM testimonials WHERE id = ?').get(id);
-    res.json({ status: 'success', message: 'Testimoni berhasil diperbarui!', data: updated });
+    res.json({ status: 'success', message: 'Testimoni berhasil diperbarui!', data: rows[0] });
   } catch (error) {
     console.error('Update testimonial error:', error);
     res.status(500).json({ status: 'error', message: 'Gagal memperbarui testimoni.' });
@@ -68,11 +61,11 @@ exports.updateTestimonial = (req, res) => {
 };
 
 // DELETE testimonial (Admin)
-exports.deleteTestimonial = (req, res) => {
+exports.deleteTestimonial = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = db.prepare('DELETE FROM testimonials WHERE id = ?').run(id);
-    if (result.changes === 0) {
+    const result = await pool.query('DELETE FROM testimonials WHERE id = $1 RETURNING id', [id]);
+    if (result.rows.length === 0) {
       return res.status(404).json({ status: 'error', message: 'Testimoni tidak ditemukan.' });
     }
     res.json({ status: 'success', message: 'Testimoni berhasil dihapus.' });

@@ -81,7 +81,7 @@ const Navbar = () => {
         </button>
 
         {/* Desktop Navigation Menu (Centered) */}
-        <nav className="hidden md:flex items-center gap-8 text-[13.5px] font-sans font-medium absolute left-1/2 transform -translate-x-1/2">
+        <nav className="hidden lg:flex items-center gap-6 xl:gap-8 text-[13px] xl:text-[13.5px] font-sans font-medium absolute left-1/2 transform -translate-x-1/2">
           {menuItems.map((item, idx) => (
             <button
               key={idx}
@@ -104,7 +104,7 @@ const Navbar = () => {
         </nav>
 
         {/* Desktop CTA Button */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden lg:flex items-center gap-3">
           {/* Language Switcher */}
           <LanguageSwitcher />
 
@@ -137,9 +137,9 @@ const Navbar = () => {
           </button>
         </div>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile Menu Button — tampil di bawah lg */}
         <button
-          className="md:hidden p-2 rounded-lg hover:bg-white/5 transition"
+          className="lg:hidden p-2 rounded-lg hover:bg-white/5 transition"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           <svg
@@ -169,7 +169,7 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden border-t border-[#1E293B]/40 bg-[#0B132B] px-6 py-4">
+        <div className="lg:hidden border-t border-[#1E293B]/40 bg-[#0B132B] px-6 py-4">
           <div className="flex flex-col gap-3">
             {menuItems.map((item, idx) => (
               <button

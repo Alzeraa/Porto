@@ -1,29 +1,10 @@
-const db = require('../config/database');
+const pool = require('../config/database');
 const emailService = require('../services/emailService');
-
-// Migrate contacts table: add new columns if they don't exist yet
-const migrateContactsTable = async () => {
-  const newColumns = [
-    { name: 'business_org', def: 'TEXT DEFAULT ""' },
-    { name: 'budget_range', def: 'TEXT DEFAULT ""' },
-    { name: 'timeline',     def: 'TEXT DEFAULT ""' },
-    { name: 'reference_url',def: 'TEXT DEFAULT ""' },
-  ];
-  for (const col of newColumns) {
-    try {
-      await db.run(`ALTER TABLE contacts ADD COLUMN ${col.name} ${col.def}`);
-    } catch (_) {
-      // Column already exists — safe to ignore
-    }
-  }
-};
-migrateContactsTable();
 
 exports.submitContact = async (req, res) => {
   try {
     const {
       name, email, whatsapp, service, message,
-      // New extended fields
       businessOrg = '', budgetRange = '', timeline = '', referenceUrl = '',
     } = req.body;
 
@@ -31,26 +12,23 @@ exports.submitContact = async (req, res) => {
       return res.status(400).json({ status: 'error', message: 'Name, email, and message are required.' });
     }
 
-    const result = await db.run(
+    const { rows } = await pool.query(
       `INSERT INTO contacts
          (name, email, whatsapp, service, message, business_org, budget_range, timeline, reference_url)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [name, email, whatsapp || '', service || '', message,
-       businessOrg, budgetRange, timeline, referenceUrl]
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+       RETURNING id`,
+      [name, email, whatsapp || '', service || '', message, businessOrg, budgetRange, timeline, referenceUrl]
     );
 
     res.status(201).json({
       status: 'success',
-      message: 'Your inquiry has been received. We\'ll be in touch within 24 hours.',
-      data: { id: result.lastInsertRowid, name, email },
+      message: "Your inquiry has been received. We'll be in touch within 24 hours.",
+      data: { id: rows[0].id, name, email },
     });
 
     // Fire-and-forget emails
     try {
-      await emailService.sendContactNotification({
-        name, email, whatsapp, service, message,
-        businessOrg, budgetRange, timeline, referenceUrl,
-      });
+      await emailService.sendContactNotification({ name, email, whatsapp, service, message, businessOrg, budgetRange, timeline, referenceUrl });
       await emailService.sendThankYouEmail(email, name);
     } catch (emailError) {
       console.error('[EmailService] Error:', emailError.message);
@@ -63,7 +41,7 @@ exports.submitContact = async (req, res) => {
 
 exports.getAllContacts = async (req, res) => {
   try {
-    const rows = await db.all('SELECT * FROM contacts ORDER BY created_at DESC');
+    const { rows } = await pool.query('SELECT * FROM contacts ORDER BY created_at DESC');
     res.json({ status: 'success', data: rows });
   } catch (error) {
     res.status(500).json({ status: 'error', message: 'Terjadi kesalahan pada server' });
@@ -73,8 +51,10 @@ exports.getAllContacts = async (req, res) => {
 exports.deleteContact = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await db.run('DELETE FROM contacts WHERE id = ?', [id]);
-    if (result.changes === 0) return res.status(404).json({ status: 'error', message: 'Pesan tidak ditemukan.' });
+    const result = await pool.query('DELETE FROM contacts WHERE id = $1 RETURNING id', [id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ status: 'error', message: 'Pesan tidak ditemukan.' });
+    }
     res.json({ status: 'success', message: 'Pesan berhasil dihapus.' });
   } catch (error) {
     res.status(500).json({ status: 'error', message: 'Gagal menghapus pesan.' });
@@ -84,7 +64,7 @@ exports.deleteContact = async (req, res) => {
 exports.markAsRead = async (req, res) => {
   try {
     const { id } = req.params;
-    await db.run("UPDATE contacts SET status = 'read' WHERE id = ?", [id]);
+    await pool.query("UPDATE contacts SET status = 'read' WHERE id = $1", [id]);
     res.json({ status: 'success', message: 'Status pesan diubah menjadi dibaca.' });
   } catch (error) {
     res.status(500).json({ status: 'error', message: 'Gagal mengupdate status.' });

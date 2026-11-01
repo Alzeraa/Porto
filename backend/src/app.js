@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 
-// Inisialisasi Database SQLite
+// Inisialisasi Database PostgreSQL
 require('./config/database');
 
 // Import Routes
@@ -10,6 +10,7 @@ const authRoutes = require('./routes/authRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const servicesRoutes = require('./routes/servicesRoutes');
 const projectsRoutes = require('./routes/projectsRoutes');
+const projectDetailsRoutes = require('./routes/projectDetailsRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const teamRoutes = require('./routes/teamRoutes');
@@ -45,7 +46,7 @@ app.get('/', (req, res) => {
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
-    database: 'SQLite (portfolio.db)',
+    database: 'PostgreSQL',
     timestamp: new Date().toISOString()
   });
 });
@@ -55,6 +56,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/services', servicesRoutes);
 app.use('/api/projects', projectsRoutes);
+app.use('/api/project-details', projectDetailsRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/team', teamRoutes);

@@ -13,6 +13,7 @@ interface Project {
   tech: string[];
   image: string;
   link?: string;
+  slug?: string;
 }
 
 // ─── Scroll-reveal hook ───────────────────────────────────────────────────────
@@ -41,6 +42,7 @@ const defaultProjects: Project[] = [
     tech: ['Next.js', 'Node.js', 'PostgreSQL'],
     image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800',
     link: '#',
+    slug: 'logiflow-dispatch-fleet-portal',
   },
   {
     title: 'Vanguard Corporate & Investor Hub',
@@ -49,6 +51,7 @@ const defaultProjects: Project[] = [
     tech: ['Tailwind', 'Astro', 'Headless CMS'],
     image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800',
     link: '#',
+    slug: 'vanguard-corporate-investor-hub',
   },
   {
     title: 'Medix Operational Core',
@@ -57,6 +60,7 @@ const defaultProjects: Project[] = [
     tech: ['TypeScript', 'PostgreSQL', 'Docker'],
     image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=800',
     link: '#',
+    slug: 'medix-operational-core',
   },
 ];
 
@@ -114,19 +118,21 @@ const WorkCard = ({ project, index }: { project: Project; index: number }) => {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline whitespace-nowrap"
             >
-              View Case Study
+              View Live
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </a>
-          ) : (
-            <span className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 dark:text-blue-400 whitespace-nowrap">
-              View Case Study
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </span>
-          )}
+          ) : null}
+          <button
+            onClick={() => window.location.href = `/projects/${project.slug}`}
+            className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline whitespace-nowrap"
+          >
+            View Case Study
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </button>
         </div>
       </div>
     </article>
