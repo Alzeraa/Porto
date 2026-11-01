@@ -1,3 +1,93 @@
+# 📋 SYSTEM REQUIREMENTS
+
+## ✅ Node.js Version Requirements
+
+Sebelum menjalankan project ini, **pastikan kamu menggunakan versi Node.js yang compatible!**
+
+### Recommended Versions
+
+| Version | Type | Status | Recommendation |
+|---------|------|--------|-----------------|
+| **v22.x** | **LTS** | ✅ **BEST** | Gunakan ini! (Stable & Long-term support) |
+| **v20.x** | **LTS** | ✅ **BEST** | Alternatif terbaik (Stable & Long-term support) |
+| **v24.x** | Current | ✅ **OK** | Bisa digunakan (lebih baru, tapi support lebih pendek) |
+| **v18.x** | LTS | ⚠️ OLD | Bisa, tapi sudah lama |
+| **v23.x** | Current | ❌ **AVOID** | ⛔ JANGAN GUNAKAN! (Banyak library incompatible) |
+
+### ⚠️ Kenapa Node v23 Tidak Boleh?
+
+v23 adalah "transitional version" yang:
+- Belum memiliki stabilitas LTS
+- Banyak library belum support sepenuhnya
+- Sering error di `better-sqlite3` dan dependencies lainnya
+- **Disarankan skip versi ini!**
+
+---
+
+## 🔍 Cara Cek Versi Node yang Sudah Terinstall
+
+### Di PowerShell/Terminal:
+```powershell
+node --version
+npm --version
+```
+
+**Contoh output yang benar:**
+```
+v22.12.0
+10.5.0
+```
+
+---
+
+## 📥 Install/Update Node.js
+
+### Download Versi yang Tepat
+
+1. **Kunjungi:** [nodejs.org](https://nodejs.org)
+2. **Pilih LTS version** (bukan "Current")
+3. **Download & Install** untuk OS mu (Windows/Mac/Linux)
+4. **Restart terminal/IDE**
+5. **Verify:** `node --version`
+
+### Recommended Install Steps:
+```powershell
+# Download LTS dari nodejs.org
+# Jalankan installer
+# Restart terminal
+
+# Verify installation
+node --version   # Should be v20.x, v22.x, or v24.x
+npm --version    # Should be 10.x or higher
+```
+
+---
+
+## 💻 Other Requirements
+
+| Requirement | Version | Purpose |
+|------------|---------|---------|
+| **npm** | 10.x or higher | Package manager |
+| **git** | Latest | Version control |
+| **OS** | Windows/Mac/Linux | Platform |
+
+---
+
+## ✅ Complete Checklist Sebelum Mulai
+
+```
+☑️ Node.js installed: node --version
+☑️ Versi adalah LTS (v20/v22) atau v24
+☑️ npm installed: npm --version
+☑️ git installed: git --version
+☑️ npm install di backend folder: npm install
+☑️ npm install di frontend folder: npm install
+```
+
+**Kalau semua sudah ✅, lanjut ke setup project!**
+
+---
+
 PORT_FRONTEND : http://localhost:5173/   
 PORT_BACKEND : http://localhost:5000
 
@@ -607,3 +697,154 @@ curl http://localhost:5000/api/health
 - Backend setup complete
 - Database configuration ready
 - Authentication working (admin@gmail.com / admin123)
+
+---
+
+# 🛠️ ADDITIONAL TOOLS & VERSIONS
+
+## 📦 Package Manager Versions
+
+### npm
+```bash
+npm --version  # Should be 10.x or higher
+
+# Update npm (if needed)
+npm install -g npm@latest
+```
+
+### pnpm (Alternative, Optional)
+```bash
+# If you prefer pnpm over npm
+pnpm --version
+npm install -g pnpm
+```
+
+---
+
+## 🔧 Development Tools Recommended
+
+| Tool | Purpose | Install |
+|------|---------|---------|
+| **git** | Version control | Download from git-scm.com |
+| **VS Code** | Code editor | download from code.visualstudio.com |
+| **Postman/Insomnia** | API testing | For testing backend endpoints |
+| **PM2** | Process manager | `npm install -g pm2` |
+| **Nodemon** | Auto-reload | Included in backend devDependencies |
+
+---
+
+## 🚀 Global Tools Installation
+
+### Install PM2 (for production)
+```bash
+npm install -g pm2
+pm2 --version
+```
+
+### Install pnpm (optional alternative to npm)
+```bash
+npm install -g pnpm
+pnpm --version
+```
+
+---
+
+## 📊 Version Compatibility Matrix
+
+### Tested & Working Combinations
+
+| Node | npm | Frontend | Backend | Status |
+|------|-----|----------|---------|--------|
+| v22 LTS | 10.x | ✅ Works | ✅ Works | **RECOMMENDED** |
+| v20 LTS | 9.x-10.x | ✅ Works | ✅ Works | **RECOMMENDED** |
+| v24 | 10.x | ✅ Works | ✅ Works | ✅ Works |
+| v23 | 10.x | ⚠️ Maybe | ❌ Error | **AVOID** |
+
+---
+
+## ⚠️ Troubleshooting Version Issues
+
+### "better-sqlite3" Error
+```
+❌ Error: Module did not self-register
+Solution: Update to Node v20/v22 LTS or v24
+```
+
+### "Cannot find module" Error
+```
+❌ npm ERR! code ERESOLVE
+Solution: 
+1. Delete node_modules: rm -r node_modules
+2. Delete package-lock.json: rm package-lock.json
+3. Fresh install: npm install
+```
+
+### Version Mismatch
+```
+❌ Project works on colleague's machine but not yours
+Likely cause: Different Node version
+Solution: Match colleague's Node version
+Check: git log or ask teammate their node --version
+```
+
+---
+
+## 🎯 Quick Version Checker Script
+
+**File: `check-versions.ps1`** (PowerShell for Windows)
+```powershell
+Write-Host "=== Alvaeryn Project Version Check ===" -ForegroundColor Cyan
+Write-Host ""
+
+# Node
+$node = node --version
+Write-Host "Node.js:" $node -ForegroundColor Green
+
+# npm
+$npm = npm --version
+Write-Host "npm:" $npm -ForegroundColor Green
+
+# git
+$git = git --version
+Write-Host "git:" $git -ForegroundColor Green
+
+# PM2 (if installed)
+try {
+    $pm2 = pm2 --version
+    Write-Host "PM2:" $pm2 -ForegroundColor Green
+} catch {
+    Write-Host "PM2: Not installed (Optional)" -ForegroundColor Yellow
+}
+
+Write-Host ""
+Write-Host "✅ All versions ready!" -ForegroundColor Green
+```
+
+**Cara pakai:**
+```powershell
+# Di PowerShell:
+.\check-versions.ps1
+
+# Atau manual:
+node --version && npm --version && git --version
+```
+
+---
+
+## 💡 FINAL CHECKLIST SETUP AWAL
+
+```
+☑️ Node.js v20/v22 LTS atau v24 (BUKAN v23!)
+☑️ npm 10.x or higher
+☑️ git installed
+☑️ VS Code atau editor favorit
+☑️ Postman/Insomnia untuk API testing (optional)
+☑️ PM2 untuk production (optional: npm install -g pm2)
+
+☑️ Backend: npm install
+☑️ Frontend: npm install
+☑️ .env files configured
+☑️ Database ready
+
+✅ SIAP UNTUK DEVELOPMENT!
+```
