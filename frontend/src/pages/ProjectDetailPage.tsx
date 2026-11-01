@@ -2,795 +2,523 @@ import { useState, useEffect } from 'react';
 import { API_ENDPOINTS } from '../config/api';
 import { navigateTo } from '../utils/navigation';
 
-/* ─── SVG icon set ──────────────────────────────────────────────── */
-const Icons = {
-  arrowRight: (
-    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-    </svg>
-  ),
-  arrowDown: (
-    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-    </svg>
-  ),
-  externalLink: (
-    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-    </svg>
-  ),
-  zap: (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
-    </svg>
-  ),
-  shield: (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-    </svg>
-  ),
-  chart: (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-    </svg>
-  ),
-  target: (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-    </svg>
-  ),
-  code: (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-    </svg>
-  ),
-  eye: (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-    </svg>
-  ),
-  doc: (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-    </svg>
-  ),
-  monitor: (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-    </svg>
-  ),
-  info: (
-    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-  ),
-  layers: (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 2l9 4.5L12 11 3 6.5 12 2zm0 7l9 4.5L12 18l-9-4.5L12 9z" />
-    </svg>
-  ),
-};
-
-const capIcons = [
-  Icons.zap, Icons.target, Icons.doc, Icons.shield,
-  Icons.chart, Icons.code, Icons.eye, Icons.monitor,
-];
-
-/* ─── tiny reusable Label ─────────────────────────────────────── */
-const SectionLabel = ({ n, text, light = false }: { n: string; text: string; light?: boolean }) => (
-  <p className={`text-[10px] font-mono font-bold uppercase tracking-[.18em] mb-3 ${light ? 'text-blue-400' : 'text-blue-600 dark:text-blue-500'}`}>
-    {n} // {text}
-  </p>
-);
-
-/* ─── Browser frame wrapper ───────────────────────────────────── */
-const BrowserFrame = ({
-  children,
-  label,
-  statusRight,
-  className = '',
-}: {
-  children: React.ReactNode;
-  label?: string;
-  statusRight?: string;
-  className?: string;
-}) => (
-  <div className={`rounded-xl overflow-hidden border border-slate-700 bg-slate-900 shadow-2xl ${className}`}>
-    <div className="bg-[#161b2e] border-b border-slate-700/80 px-4 py-2.5 flex items-center gap-3">
-      <div className="flex gap-1.5 flex-shrink-0">
-        <span className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
-        <span className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
-        <span className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
-      </div>
-      {label && (
-        <div className="flex-1 mx-2">
-          <div className="max-w-[280px] bg-slate-800/80 rounded px-3 py-1 text-[10px] font-mono text-slate-400 truncate">
-            {label}
-          </div>
-        </div>
-      )}
-      {statusRight && (
-        <span className="ml-auto text-[10px] font-mono text-green-400 font-semibold hidden sm:block">{statusRight}</span>
-      )}
-    </div>
-    {children}
-  </div>
-);
-
-/* ═══════════════════════════════════════════════════════════════
-   MAIN COMPONENT
-═══════════════════════════════════════════════════════════════ */
-const ProjectDetailPage = ({ projectSlug }: { projectSlug?: string }) => {
+const ProjectDetailPage = () => {
   const [project, setProject] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [whatsapp, setWhatsapp] = useState('628818411915');
-  const [relatedProjects, setRelatedProjects] = useState<any[]>([]);
 
   useEffect(() => {
-    const slug = projectSlug || window.location.pathname.split('/').pop() || '';
-    setLoading(true);
+    const slug = window.location.pathname.split('/').pop() || '';
+    if (!slug) {
+      setError('Project not found');
+      setLoading(false);
+      return;
+    }
+
     fetch(`${API_ENDPOINTS.projectDetails}/${slug}`)
       .then(r => r.json())
       .then(data => {
-        if (data.status === 'success' && data.data) setProject(data.data);
-        else setError('Project tidak ditemukan');
+        if (data.status === 'success' && data.data) {
+          setProject(data.data);
+        } else {
+          setError('Project tidak ditemukan');
+        }
       })
       .catch(() => setError('Gagal memuat project detail'))
       .finally(() => setLoading(false));
-  }, [projectSlug]);
-
-  useEffect(() => {
-    fetch(API_ENDPOINTS.profile)
-      .then(r => r.json())
-      .then(res => { if (res.data?.whatsapp) setWhatsapp(res.data.whatsapp.replace(/\D/g, '')); })
-      .catch(() => {});
   }, []);
 
-  useEffect(() => { window.scrollTo({ top: 0 }); }, [projectSlug]);
-
-  useEffect(() => {
-    const slugs: string[] = project?.detail?.relatedSlugs || [];
-    if (!slugs.length) return;
-    Promise.all(
-      slugs.slice(0, 2).map(s =>
-        fetch(`${API_ENDPOINTS.projectDetails}/${s}`).then(r => r.json()).catch(() => null)
-      )
-    ).then(results => {
-      setRelatedProjects(
-        results.filter(r => r?.status === 'success' && r.data).map(r => r.data)
-      );
-    });
-  }, [project]);
-
-  /* ── loading ── */
-  if (loading) return (
-    <div className="min-h-screen bg-white dark:bg-[#080D1D] flex items-center justify-center">
-      <div className="text-center">
-        <div className="w-8 h-8 border-[3px] border-slate-200 dark:border-slate-700 border-t-blue-600 rounded-full animate-spin mx-auto mb-3" />
-        <p className="text-xs text-slate-400 font-mono tracking-wider">LOADING PROJECT</p>
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-[#0F1419] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-[3px] border-slate-200 dark:border-slate-700 border-t-blue-600 rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-xs text-slate-400 font-mono tracking-wider">LOADING</p>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 
-  /* ── error ── */
-  if (error || !project) return (
-    <div className="min-h-screen bg-white dark:bg-[#080D1D] flex items-center justify-center px-6">
-      <div className="text-center">
-        <p className="text-slate-500 mb-4">{error || 'Project tidak ditemukan'}</p>
-        <button onClick={() => navigateTo('/projects')}
-          className="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors">
-          Back to Projects
-        </button>
+  if (error || !project) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-[#0F1419] flex items-center justify-center px-6">
+        <div className="text-center">
+          <p className="text-slate-500 mb-4">{error || 'Project tidak ditemukan'}</p>
+          <button
+            onClick={() => navigateTo('/projects')}
+            className="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700"
+          >
+            Kembali ke Projects
+          </button>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 
   const p = project;
   const d = p.detail || {};
-  const heroStats: any[]       = Array.isArray(d.heroStats)      ? d.heroStats      : [];
-  const overviewMeta: any[]    = Array.isArray(d.overviewMeta)   ? d.overviewMeta   : [];
-  const bottlenecks: any[]     = Array.isArray(d.bottlenecks)    ? d.bottlenecks    : [];
-  const pipeline: any[]        = Array.isArray(d.pipeline)       ? d.pipeline       : [];
-  const capabilities: any[]    = Array.isArray(d.capabilities)   ? d.capabilities   : [];
-  const techSpecs: any[]       = Array.isArray(d.techSpecs)      ? d.techSpecs      : [];
-  const deliverables: any[]    = Array.isArray(d.deliverables)   ? d.deliverables   : [];
-  const relatedSlugs: string[] = Array.isArray(d.relatedSlugs)   ? d.relatedSlugs   : [];
 
   return (
-    <div className="bg-white dark:bg-[#080D1D] overflow-x-hidden">
-
-      {/* ── BREADCRUMB ───────────────────────────────────────────── */}
-      <div className="pt-20 bg-white dark:bg-[#080D1D] border-b border-slate-200 dark:border-slate-800/60">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-10 h-11 flex items-center justify-between">
-          <nav className="flex items-center gap-1.5 text-[11px] text-slate-400 dark:text-slate-500">
-            <button onClick={() => navigateTo('/')}
-              className="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">Home</button>
-            <span className="text-slate-300 dark:text-slate-700">/</span>
-            <button onClick={() => navigateTo('/projects')}
-              className="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">Projects</button>
-            <span className="text-slate-300 dark:text-slate-700">/</span>
-            <span className="text-slate-700 dark:text-slate-300 font-medium truncate max-w-[200px]">{p.title}</span>
+    <div className="bg-white dark:bg-[#0F1419]">
+      {/* ═════════════════════════════════════════════════════════════
+          BREADCRUMB
+      ═════════════════════════════════════════════════════════════ */}
+      <div className="pt-24 pb-8 bg-white dark:bg-[#0F1419] border-b border-slate-200 dark:border-slate-800">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <nav className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-6">
+            <button onClick={() => navigateTo('/')} className="hover:text-slate-700 dark:hover:text-slate-300">
+              Home
+            </button>
+            <span>/</span>
+            <button onClick={() => navigateTo('/projects')} className="hover:text-slate-700 dark:hover:text-slate-300">
+              Projects
+            </button>
+            <span>/</span>
+            <span className="text-slate-700 dark:text-slate-300">{p.title}</span>
           </nav>
-          <div className="hidden sm:flex items-center gap-5 text-[10px] font-mono">
-            <span className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 font-bold">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-              Case Study // {p.year || '2024'}
-            </span>
-            <span className="text-slate-400 dark:text-slate-500">
-              ALZERA Project Archive #{p.archiveCode || 'CS-04'}
-            </span>
-          </div>
-        </div>
-      </div>
 
-      {/* ══════════════════════════════════════════════════════════
-          §1 HERO
-      ══════════════════════════════════════════════════════════ */}
-      <section className="bg-white dark:bg-[#080D1D] py-16 lg:py-24 border-b border-slate-200 dark:border-slate-800/60">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
-          <div className="grid lg:grid-cols-[1fr_1.1fr] gap-12 lg:gap-16 items-start">
-
-            {/* LEFT */}
-            <div>
-              {/* Category tags */}
-              <div className="flex flex-wrap items-center gap-2 mb-6">
-                <span className="px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 text-[10px] font-mono font-bold uppercase tracking-[.14em] border border-blue-200/80 dark:border-blue-500/20">
-                  {p.category || 'WEB APPLICATION'}
+          {/* Project Title & Meta */}
+          <div className="flex items-start justify-between gap-8">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-mono font-bold rounded-sm">
+                  {p.category}
                 </span>
-                {d.tagline && d.tagline !== p.category && (
-                  <span className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-mono font-semibold uppercase tracking-[.14em] border border-slate-200 dark:border-slate-700">
+                {d.tagline && (
+                  <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-mono rounded-sm">
                     {d.tagline}
                   </span>
                 )}
               </div>
-
-              {/* Title */}
-              <h1 className="text-[2.75rem] sm:text-5xl lg:text-[3.5rem] font-extrabold text-slate-900 dark:text-white leading-[1.05] tracking-tight mb-5">
+              <h1 className="text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white mb-4 leading-tight">
                 {p.title}
               </h1>
-
-              {/* Description */}
-              <p className="text-[15px] text-slate-600 dark:text-slate-400 leading-[1.7] max-w-[480px] mb-8">
+              <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl">
                 {p.description}
               </p>
-
-              {/* CTA buttons */}
-              <div className="flex flex-wrap gap-3 mb-10">
-                {p.link && p.link !== '#' && (
-                  <a href={p.link} target="_blank" rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-sm font-semibold transition-colors shadow-lg shadow-blue-600/25">
-                    View Live Demo {Icons.externalLink}
-                  </a>
-                )}
-                <button
-                  onClick={() => document.getElementById('overview')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:border-slate-400 dark:hover:border-slate-600 transition-colors">
-                  Explore the Architecture {Icons.arrowDown}
-                </button>
+            </div>
+            {d.archiveCode && (
+              <div className="text-right">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">CASE STUDY</p>
+                <p className="text-sm font-mono font-bold text-slate-700 dark:text-slate-300">{d.archiveCode}</p>
               </div>
+            )}
+          </div>
+        </div>
+      </div>
 
-              {/* Hero stats */}
-              {heroStats.length > 0 && (
-                <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-200 dark:border-slate-800">
-                  {heroStats.slice(0, 3).map((s: any, i: number) => (
+      {/* ═════════════════════════════════════════════════════════════
+          HERO SECTION WITH STATS & SCREENSHOT
+      ═════════════════════════════════════════════════════════════ */}
+      <section className="py-20 bg-white dark:bg-[#0F1419] border-b border-slate-200 dark:border-slate-800">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="grid lg:grid-cols-[1fr_1.2fr] gap-12 items-start">
+            {/* Left: Description & Stats */}
+            <div>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-8">
+                {d.overviewDescription || p.description}
+              </p>
+
+              {/* Hero Stats */}
+              {d.heroStats && d.heroStats.length > 0 && (
+                <div className="space-y-6 pt-8 border-t border-slate-200 dark:border-slate-800">
+                  {d.heroStats.map((stat: any, i: number) => (
                     <div key={i}>
-                      <div className={`text-[1.75rem] font-extrabold leading-none ${s.blue ? 'text-blue-600 dark:text-blue-400' : 'text-slate-900 dark:text-white'}`}>
-                        {s.value}
+                      <div className="flex items-baseline gap-3 mb-1">
+                        <span className={`text-3xl font-bold ${stat.blue ? 'text-blue-600 dark:text-blue-400' : 'text-slate-900 dark:text-white'}`}>
+                          {stat.value}
+                        </span>
+                        <span className="text-xs font-mono text-slate-500">{stat.label}</span>
                       </div>
-                      <div className="text-[10px] font-bold uppercase tracking-[.12em] text-slate-500 dark:text-slate-400 mt-1.5 leading-snug">{s.label}</div>
-                      {s.sub && <div className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">{s.sub}</div>}
+                      {stat.sub && (
+                        <p className="text-xs text-slate-500 dark:text-slate-400">{stat.sub}</p>
+                      )}
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* RIGHT — browser mockup */}
-            <div className="lg:pt-2">
-              <BrowserFrame
-                label={d.screenshotUrl ? `console.${p.slug}.internal/live` : undefined}
-                statusRight={p.metric ? `${p.metric} ${p.metricLabel || ''}`.trim() : undefined}
-              >
-                {d.screenshotUrl ? (
-                  <img src={d.screenshotUrl} alt={p.title} className="w-full h-auto block" loading="lazy" />
-                ) : (
-                  <div className="aspect-[16/10] bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
-                    <div className="text-center opacity-40">
-                      <div className="w-10 h-10 rounded-lg bg-slate-700 flex items-center justify-center mx-auto mb-2">
-                        {Icons.monitor}
+            {/* Right: Screenshot & Data Viz */}
+            <div className="space-y-6">
+              {d.screenshotUrl && (
+                <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-lg">
+                  <div className="bg-slate-900 border-b border-slate-700 px-4 py-2 flex items-center gap-2">
+                    <div className="flex gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
+                    </div>
+                    <span className="text-xs text-slate-400 font-mono ml-2">logiflow.dashboard</span>
+                  </div>
+                  <img src={d.screenshotUrl} alt={p.title} className="w-full h-auto" loading="lazy" />
+                </div>
+              )}
+
+              {/* Data Table/Viz */}
+              {d.heroStats && d.heroStats.length > 0 && (
+                <div className="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden">
+                  <div className="px-6 py-4 border-b border-slate-800">
+                    <p className="text-xs text-slate-400 font-mono">PERFORMANCE METRICS</p>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    {d.heroStats.map((stat: any, i: number) => (
+                      <div key={i} className="flex items-center justify-between pb-4 border-b border-slate-800 last:border-b-0">
+                        <span className="text-sm text-slate-400">{stat.label}</span>
+                        <span className="text-sm font-mono font-bold text-blue-400">{stat.value}</span>
                       </div>
-                      <p className="text-slate-500 text-xs">Preview unavailable</p>
-                    </div>
-                  </div>
-                )}
-              </BrowserFrame>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════════
-          §2 PROJECT OVERVIEW
-      ══════════════════════════════════════════════════════════ */}
-      {d.overviewBody && (
-        <section id="overview" className="bg-white dark:bg-[#080D1D] py-20 lg:py-28 border-b border-slate-200 dark:border-slate-800/60">
-          <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
-            <SectionLabel n="Section 01" text="Executive Context" />
-            <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white tracking-tight mb-6">
-              Project Overview
-            </h2>
-
-            <p className="text-[15px] text-slate-600 dark:text-slate-400 leading-[1.75] max-w-3xl mb-12">
-              {d.overviewBody}
-            </p>
-
-            {overviewMeta.length > 0 && (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-px bg-slate-200 dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800">
-                {overviewMeta.map((m: any, i: number) => (
-                  <div key={i} className="bg-white dark:bg-[#080D1D] p-6 hover:bg-slate-50 dark:hover:bg-slate-900/80 transition-colors">
-                    <p className="text-[10px] font-mono font-bold uppercase tracking-[.14em] text-blue-600 dark:text-blue-500 mb-2.5">{m.label}</p>
-                    <p className="text-[15px] font-bold text-slate-900 dark:text-white leading-snug mb-1">{m.title}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-snug">{m.sub}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-      )}
-
-      {/* ══════════════════════════════════════════════════════════
-          §3 OPERATIONAL BOTTLENECK
-      ══════════════════════════════════════════════════════════ */}
-      {bottlenecks.length > 0 && (
-        <section className="bg-[#f8f9fc] dark:bg-[#060b18] py-20 lg:py-28 border-b border-slate-200 dark:border-slate-800/60">
-          <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
-            <SectionLabel n="Section 02" text="Operational Friction" />
-            <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white tracking-tight mb-3">
-              The Operational Bottleneck
-            </h2>
-            {d.bottleneckIntro && (
-              <p className="text-[15px] text-slate-600 dark:text-slate-400 max-w-2xl leading-[1.7] mb-10">{d.bottleneckIntro}</p>
-            )}
-
-            <div className="grid md:grid-cols-3 gap-5 mt-10">
-              {bottlenecks.map((bn: any, i: number) => (
-                <div key={i} className="relative p-7 rounded-xl bg-white dark:bg-[#0d1526] border border-slate-200 dark:border-slate-800 flex flex-col hover:shadow-lg dark:hover:shadow-slate-950/80 transition-shadow">
-                  {/* number */}
-                  <div className="absolute top-5 right-5 text-[10px] font-mono text-slate-300 dark:text-slate-700 font-bold select-none">
-                    {String(i + 1).padStart(2, '0')}
-                  </div>
-
-                  {/* icon */}
-                  <div className="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-5 flex-shrink-0">
-                    {capIcons[i % capIcons.length]}
-                  </div>
-
-                  <h3 className="text-[1.05rem] font-bold text-slate-900 dark:text-white mb-3 leading-snug pr-6">
-                    {bn.title}
-                  </h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-[1.65] flex-1">{bn.desc}</p>
-
-                  {bn.impact && (
-                    <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800">
-                      <p className="text-[9px] font-mono font-bold uppercase tracking-[.14em] text-slate-400 dark:text-slate-500 mb-1.5">
-                        Observed Impact:
-                      </p>
-                      <p className="text-sm font-bold text-red-500 dark:text-red-400">{bn.impact}</p>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ══════════════════════════════════════════════════════════
-          §4 ENGINEERING STRATEGY  — dark
-      ══════════════════════════════════════════════════════════ */}
-      {pipeline.length > 0 && (
-        <section className="bg-[#0b1120] py-20 lg:py-28 border-b border-slate-800/60">
-          <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
-            <SectionLabel n="Section 03" text="Engineering Strategy" light />
-            <h2 className="text-4xl lg:text-5xl font-bold text-white tracking-tight mb-4 max-w-3xl leading-[1.1]">
-              {d.strategyTitle || 'Our Approach: Deterministic Workflow Engineering'}
-            </h2>
-            {d.strategyBody && (
-              <p className="text-[15px] text-slate-400 max-w-3xl leading-[1.7] mb-10">{d.strategyBody}</p>
-            )}
-
-            {/* Pipeline card */}
-            <div className="rounded-xl border border-slate-700/60 bg-slate-800/30 overflow-hidden backdrop-blur-sm">
-              {/* card header */}
-              <div className="px-5 py-3 border-b border-slate-700/60 bg-slate-800/40 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-2 text-[11px] text-slate-300 font-semibold">
-                  <svg className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                  {d.pipelineTitle || 'Telemetry & Dispatch Ingestion Pipeline'}
-                </div>
-                {d.pipelineNote && (
-                  <span className="text-[10px] font-mono text-slate-500 flex-shrink-0">{d.pipelineNote}</span>
-                )}
-              </div>
-
-              {/* steps */}
-              <div className="grid sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-700/50">
-                {pipeline.slice(0, 4).map((step: any, i: number) => (
-                  <div key={i} className="p-6">
-                    <p className="text-[9px] font-mono text-slate-500 uppercase tracking-[.15em] mb-2">
-                      {String(i + 1).padStart(2, '0')}. {step.label}
-                    </p>
-                    <h4 className="text-sm font-bold text-white mb-2 leading-snug">{step.title}</h4>
-                    <p className="text-xs text-slate-400 leading-[1.6]">{step.desc}</p>
-                    {step.perf && (
-                      <p className="text-[10px] font-mono text-blue-400 mt-3 font-semibold">{step.perf}</p>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* card footer */}
-              {d.pipelineNoteRight && (
-                <div className="px-5 py-3 border-t border-slate-700/60 bg-slate-800/40">
-                  <div className="flex items-center gap-2 text-[10px] text-slate-500">
-                    {Icons.info}
-                    {d.pipelineNoteRight}
+                    ))}
                   </div>
                 </div>
               )}
             </div>
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
-      {/* ══════════════════════════════════════════════════════════
-          §5 KEY IMPLEMENTED CAPABILITIES
-      ══════════════════════════════════════════════════════════ */}
-      {capabilities.length > 0 && (
-        <section className="bg-white dark:bg-[#080D1D] py-20 lg:py-28 border-b border-slate-200 dark:border-slate-800/60">
-          <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
-            <SectionLabel n="Section 04" text="Product Capabilities" />
-            <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white tracking-tight mb-3">
-              Key Implemented Capabilities
-            </h2>
-            {d.capabilitiesIntro && (
-              <p className="text-[15px] text-slate-600 dark:text-slate-400 max-w-2xl leading-[1.7] mb-10">{d.capabilitiesIntro}</p>
-            )}
+      {/* ═════════════════════════════════════════════════════════════
+          PROJECT OVERVIEW
+      ═════════════════════════════════════════════════════════════ */}
+      <section className="py-20 bg-slate-50 dark:bg-[#141A24] border-b border-slate-200 dark:border-slate-800">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white mb-4">
+            {d.overviewTitle || 'Project Overview'}
+          </h2>
+          <p className="text-slate-600 dark:text-slate-400 mb-12 max-w-3xl">
+            {d.overviewDescription}
+          </p>
 
-            <div className="grid md:grid-cols-2 gap-5 mt-10">
-              {capabilities.map((cap: any, i: number) => {
-                const tags: string[]    = Array.isArray(cap.tags)      ? cap.tags      : [];
-                const kvPairs: any[]    = Array.isArray(cap.keyValues) ? cap.keyValues : [];
-                return (
-                  <div key={i} className="p-7 rounded-xl bg-[#f8f9fc] dark:bg-[#0d1526] border border-slate-200 dark:border-slate-800 flex flex-col hover:shadow-md dark:hover:shadow-slate-950/60 transition-shadow">
-                    {/* top row */}
-                    <div className="flex items-start justify-between mb-5">
-                      <div className="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0">
-                        {capIcons[i % capIcons.length]}
-                      </div>
-                      {tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 justify-end">
-                          {tags.map((t: string, ti: number) => (
-                            <span key={ti}
-                              className="px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-[.12em] bg-slate-200 dark:bg-slate-700/80 text-slate-600 dark:text-slate-300">
-                              {t}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    <h3 className="text-[1.05rem] font-bold text-slate-900 dark:text-white mb-2 leading-snug">
-                      {cap.name}
-                    </h3>
-                    {cap.desc && (
-                      <p className="text-sm text-slate-600 dark:text-slate-400 leading-[1.65] flex-1">{cap.desc}</p>
-                    )}
-
-                    {kvPairs.length > 0 && (
-                      <div className="mt-5 pt-5 border-t border-slate-200 dark:border-slate-800 space-y-2">
-                        {kvPairs.map((kv: any, ki: number) => (
-                          <div key={ki} className="flex items-center justify-between text-xs">
-                            <span className="text-slate-500 dark:text-slate-400">{kv.key}</span>
-                            <span className={`font-semibold font-mono text-[11px] ${kv.blue ? 'text-blue-600 dark:text-blue-400' : 'text-slate-900 dark:text-slate-200'}`}>
-                              {kv.value}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {kvPairs.length === 0 && cap.status && (
-                      <div className="mt-5 pt-5 border-t border-slate-200 dark:border-slate-800">
-                        <p className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">{cap.status}</p>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ══════════════════════════════════════════════════════════
-          §6 INSIDE THE PRODUCT  — full screenshot
-      ══════════════════════════════════════════════════════════ */}
-      {d.screenshotUrl && (
-        <section className="bg-[#f8f9fc] dark:bg-[#060b18] py-20 lg:py-28 border-b border-slate-200 dark:border-slate-800/60">
-          <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
-            <SectionLabel n="Section 05" text="Visual System" />
-            <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white tracking-tight mb-3 leading-[1.15]">
-              Inside the Product: Crafted for Speed &amp; High-Stress Operations
-            </h2>
-            <p className="text-[15px] text-slate-600 dark:text-slate-400 max-w-2xl leading-[1.7] mb-10">
-              Every screen was built to reduce cognitive friction for operators juggling dozens of incoming and outgoing tasks simultaneously.
-            </p>
-
-            <BrowserFrame
-              label="Console // Main Dispatch Matrix View"
-              statusRight="Display Mode: High-Density (1080p+)"
-            >
-              <img src={d.screenshotUrl} alt={`${p.title} dashboard`} className="w-full h-auto block" loading="lazy" />
-            </BrowserFrame>
-
-            {/* sub screenshots if any */}
-            {Array.isArray(d.subScreenshots) && d.subScreenshots.length > 0 && (
-              <div className="grid sm:grid-cols-2 gap-5 mt-5">
-                {d.subScreenshots.slice(0, 2).map((ss: any, i: number) => (
-                  <div key={i} className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
-                    <div className="px-4 py-2.5 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 flex items-center justify-between">
-                      <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400">{ss.label}</span>
-                      {ss.badge && (
-                        <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
-                          {ss.badge}
-                        </span>
-                      )}
-                    </div>
-                    <img src={ss.url} alt={ss.label} className="w-full h-auto block" loading="lazy" />
-                    {Array.isArray(ss.rows) && ss.rows.length > 0 && (
-                      <div className="p-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
-                        {ss.rows.map((row: any, ri: number) => (
-                          <div key={ri} className="flex items-center justify-between text-xs">
-                            <span className="text-slate-500 dark:text-slate-400">{row.key}:</span>
-                            <span className={`font-semibold font-mono text-[11px] ${row.blue ? 'text-blue-600 dark:text-blue-400' : 'text-slate-800 dark:text-slate-200'}`}>
-                              {row.value}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-      )}
-
-      {/* ══════════════════════════════════════════════════════════
-          §7 HOW IT WAS BUILT  — tech specs
-      ══════════════════════════════════════════════════════════ */}
-      {techSpecs.length > 0 && (
-        <section className="bg-white dark:bg-[#080D1D] py-20 lg:py-28 border-b border-slate-200 dark:border-slate-800/60">
-          <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
-            <SectionLabel n="Section 06" text="Technical Specifications" />
-            <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white tracking-tight mb-3">
-              How It Was Built
-            </h2>
-            <p className="text-[15px] text-slate-600 dark:text-slate-400 max-w-2xl leading-[1.7] mb-10">
-              Clean, disciplined engineering choices designed for sustained production stability, minimal maintenance overhead, and rapid cold starts.
-            </p>
-
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {techSpecs.map((tech: any, i: number) => {
-                const subTags: string[] = Array.isArray(tech.tags)
-                  ? tech.tags
-                  : tech.tech ? [tech.tech] : [];
-                return (
-                  <div key={i}
-                    className="p-6 rounded-xl bg-[#f8f9fc] dark:bg-[#0d1526] border border-slate-200 dark:border-slate-800 flex flex-col gap-3 hover:border-blue-300 dark:hover:border-blue-800/60 transition-colors">
-                    <p className="text-[9px] font-mono font-bold uppercase tracking-[.15em] text-slate-400 dark:text-slate-500">
-                      {String(i + 1).padStart(2, '0')} // {tech.category}
-                    </p>
-                    <h4 className="text-sm font-bold text-slate-900 dark:text-white leading-snug">
-                      {tech.tech || tech.name}
-                    </h4>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-[1.6] flex-1">{tech.desc}</p>
-                    {subTags.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 pt-3 border-t border-slate-200 dark:border-slate-800">
-                        {subTags.map((t: string, ti: number) => (
-                          <span key={ti}
-                            className="px-2 py-0.5 rounded text-[9px] font-mono bg-slate-200 dark:bg-slate-700/80 text-slate-600 dark:text-slate-300">
-                            {t}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ══════════════════════════════════════════════════════════
-          §8 VERIFIED DELIVERABLES
-      ══════════════════════════════════════════════════════════ */}
-      {deliverables.length > 0 && (
-        <section className="bg-[#f8f9fc] dark:bg-[#060b18] py-20 lg:py-28 border-b border-slate-200 dark:border-slate-800/60">
-          <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
-            <SectionLabel n="Section 07" text="Verifiable Deliverables" />
-            <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white tracking-tight mb-3">
-              The Outcome: Verified Deliverables
-            </h2>
-            {d.deliverablesIntro && (
-              <p className="text-[15px] text-slate-600 dark:text-slate-400 max-w-2xl leading-[1.7] mb-10">{d.deliverablesIntro}</p>
-            )}
-
-            <div className="grid md:grid-cols-3 gap-5 mt-10">
-              {deliverables.slice(0, 3).map((del: any, i: number) => (
-                <div key={i}
-                  className="p-7 rounded-xl bg-white dark:bg-[#0d1526] border border-slate-200 dark:border-slate-800 flex flex-col hover:shadow-md dark:hover:shadow-slate-950/60 transition-shadow">
-                  <p className="text-[9px] font-mono font-bold uppercase tracking-[.15em] text-blue-600 dark:text-blue-400 mb-4">
-                    Deliverable {String(i + 1).padStart(2, '0')}
-                  </p>
-                  <h3 className="text-[1.05rem] font-bold text-slate-900 dark:text-white mb-2 leading-snug">
-                    {typeof del === 'string' ? del : del.item}
-                  </h3>
-                  {del.desc && (
-                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-[1.65] flex-1">{del.desc}</p>
-                  )}
-                  {del.value && (
-                    <div className="mt-5 pt-5 border-t border-slate-100 dark:border-slate-800">
-                      <p className="text-3xl font-extrabold text-slate-900 dark:text-white leading-none">{del.value}</p>
-                      {del.valueLabel && (
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">{del.valueLabel}</p>
-                      )}
-                    </div>
-                  )}
+          {/* Overview Meta Cards */}
+          {d.overviewMeta && d.overviewMeta.length > 0 && (
+            <div className="grid md:grid-cols-3 gap-6">
+              {d.overviewMeta.map((item: any, i: number) => (
+                <div key={i} className="bg-white dark:bg-[#0F1419] rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+                  <div className="text-3xl mb-3">{item.icon}</div>
+                  <h3 className="font-bold text-slate-900 dark:text-white mb-2">{item.title}</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">{item.desc}</p>
                 </div>
               ))}
             </div>
+          )}
+        </div>
+      </section>
 
-            {d.deliverablesDisclaimer && (
-              <div className="mt-5 flex items-start gap-3 p-4 rounded-lg bg-blue-50 dark:bg-blue-900/10 border border-blue-200/80 dark:border-blue-800/30">
-                <span className="text-blue-500 mt-0.5 flex-shrink-0">{Icons.info}</span>
-                <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">{d.deliverablesDisclaimer}</p>
-                {d.deliverablesValidated && (
-                  <span className="ml-auto text-[10px] font-mono text-slate-400 dark:text-slate-500 flex-shrink-0">
-                    {d.deliverablesValidated}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-        </section>
-      )}
+      {/* ═════════════════════════════════════════════════════════════
+          THE OPERATIONAL BOTTLENECK
+      ═════════════════════════════════════════════════════════════ */}
+      <section className="py-20 bg-white dark:bg-[#0F1419] border-b border-slate-200 dark:border-slate-800">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white mb-4">
+            {d.problemTitle || 'The Problem'}
+          </h2>
+          <p className="text-slate-600 dark:text-slate-400 mb-12 max-w-3xl">
+            {d.problemDescription}
+          </p>
 
-      {/* ══════════════════════════════════════════════════════════
-          §9 EXPLORE ANOTHER PROJECT
-      ══════════════════════════════════════════════════════════ */}
-      {relatedSlugs.length > 0 && (
-        <section className="bg-white dark:bg-[#080D1D] py-20 lg:py-28 border-b border-slate-200 dark:border-slate-800/60">
-          <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
-            <div className="flex items-end justify-between mb-10 gap-4">
-              <div>
-                <SectionLabel n="Section 08" text="More Case Studies" />
-                <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white tracking-tight">
-                  Explore Another Project
-                </h2>
-              </div>
-              <button
-                onClick={() => navigateTo('/projects')}
-                className="text-sm text-blue-600 dark:text-blue-400 font-semibold hover:underline whitespace-nowrap flex-shrink-0 flex items-center gap-1.5">
-                ← Back to All Projects
-              </button>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-5">
-              {(relatedProjects.length > 0 ? relatedProjects : relatedSlugs.slice(0, 2).map(s => ({ slug: s }))).map((rp: any, i: number) => (
-                <button key={i}
-                  onClick={() => navigateTo(`/projects/${rp.slug}`)}
-                  className="group p-7 rounded-xl bg-white dark:bg-[#0d1526] border border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-700/60 hover:shadow-lg dark:hover:shadow-slate-950/60 transition-all text-left">
-                  <div className="flex items-center justify-between mb-5">
-                    <div className="flex flex-wrap gap-1.5">
-                      {rp.category && (
-                        <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-[.12em] bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
-                          {rp.category}
-                        </span>
-                      )}
-                      <span className="px-2 py-0.5 rounded text-[9px] font-mono bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">
-                        // {rp.year || new Date().getFullYear()}
-                      </span>
-                    </div>
-                    <span className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 transition-all flex-shrink-0">
-                      {Icons.arrowRight}
-                    </span>
-                  </div>
-
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                    {rp.title || rp.slug?.replace(/-/g, ' ')}
-                  </h3>
-
-                  {rp.description && (
-                    <p className="text-sm text-slate-500 dark:text-slate-400 leading-[1.6] line-clamp-2 mb-5">{rp.description}</p>
-                  )}
-
-                  {Array.isArray(rp.tech) && rp.tech.length > 0 && (
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-4 border-t border-slate-100 dark:border-slate-800">
-                      {rp.tech.slice(0, 4).map((t: string, ti: number) => (
-                        <span key={ti} className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
-                          {ti > 0 && <span className="mr-3 text-slate-300 dark:text-slate-700">•</span>}
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {!rp.title && (
-                    <p className="text-sm text-blue-600 dark:text-blue-400 mt-3 font-semibold">View Case Study →</p>
-                  )}
-                </button>
+          {/* Bottlenecks Cards */}
+          {d.bottlenecks && d.bottlenecks.length > 0 && (
+            <div className="grid md:grid-cols-3 gap-6">
+              {d.bottlenecks.map((item: any, i: number) => (
+                <div key={i} className="bg-slate-50 dark:bg-[#141A24] rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+                  <div className="text-4xl mb-4">{item.icon}</div>
+                  <h3 className="font-bold text-slate-900 dark:text-white mb-3 text-lg">{item.title}</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{item.desc}</p>
+                  <a href="#" className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                    Read disclosure →
+                  </a>
+                </div>
               ))}
             </div>
+          )}
+        </div>
+      </section>
+
+      {/* ═════════════════════════════════════════════════════════════
+          OUR APPROACH
+      ═════════════════════════════════════════════════════════════ */}
+      <section className="py-20 bg-slate-900 dark:bg-[#0A0E14]">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="max-w-3xl mb-12">
+            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+              {d.solutionTitle || 'Our Approach'}
+            </h2>
+            <p className="text-slate-300">
+              {d.solutionDescription}
+            </p>
           </div>
-        </section>
-      )}
 
-      {/* ══════════════════════════════════════════════════════════
-          §10 FINAL CTA
-      ══════════════════════════════════════════════════════════ */}
-      <section className="relative bg-[#070d1e] py-28 lg:py-36 overflow-hidden">
-        {/* subtle grid bg */}
-        <div
-          className="absolute inset-0 opacity-[0.04]"
-          style={{
-            backgroundImage: 'linear-gradient(rgba(99,102,241,.8) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,.8) 1px,transparent 1px)',
-            backgroundSize: '40px 40px',
-          }}
-        />
-        {/* glow */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-600/40 to-transparent" />
+          {/* Pipeline Grid */}
+          {d.pipeline && d.pipeline.length > 0 && (
+            <div className="grid md:grid-cols-2 gap-8">
+              {d.pipeline.map((item: any, i: number) => (
+                <div key={i} className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
+                  <div className="flex items-start gap-4">
+                    <div className="text-4xl font-bold text-slate-600">{item.num}</div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-white mb-2">{item.title}</h3>
+                      <p className="text-sm text-slate-400">{item.desc}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
 
-        <div className="relative max-w-[680px] mx-auto px-6 text-center">
-          <p className="text-[10px] font-mono font-bold uppercase tracking-[.22em] text-blue-400/80 mb-7">
-            ALZERA DIGITAL CONSULTANCY
-          </p>
-          <h2 className="text-5xl lg:text-[3.75rem] font-extrabold text-white mb-6 leading-[1.06] tracking-tight">
-            Building Something Similar?
+      {/* ═════════════════════════════════════════════════════════════
+          KEY IMPLEMENTED CAPABILITIES (2x4 Grid)
+      ═════════════════════════════════════════════════════════════ */}
+      <section className="py-20 bg-white dark:bg-[#0F1419] border-b border-slate-200 dark:border-slate-800">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white mb-4">
+            {d.capabilitiesTitle || 'Key Implemented Capabilities'}
           </h2>
-          <p className="text-[15px] text-slate-400 mb-10 leading-[1.75] max-w-[520px] mx-auto">
-            Tell us about your operations, bottlenecks, and the digital tools you need. Let's explore the right architecture for your business.
+          <p className="text-slate-600 dark:text-slate-400 mb-12">
+            {d.capabilitiesIntro || 'Comprehensive features built into the platform'}
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
-            <button
-              onClick={() => navigateTo('/contact')}
-              className="w-full sm:w-auto px-8 py-3.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold rounded-lg transition-colors text-sm shadow-xl shadow-blue-600/20">
-              Discuss Your Project
-            </button>
-            <a
-              href={`https://wa.me/${whatsapp}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full sm:w-auto px-8 py-3.5 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white font-semibold rounded-lg transition-colors text-sm text-center">
-              Explore Our Services
-            </a>
-          </div>
+          {/* 2x4 Grid */}
+          {d.capabilities && d.capabilities.length > 0 && (
+            <div className="grid md:grid-cols-2 gap-6">
+              {d.capabilities.slice(0, 8).map((cap: any, i: number) => {
+                const colors = [
+                  'bg-blue-50 dark:bg-blue-900/20',
+                  'bg-purple-50 dark:bg-purple-900/20',
+                  'bg-emerald-50 dark:bg-emerald-900/20',
+                  'bg-orange-50 dark:bg-orange-900/20',
+                ];
+                const textColors = [
+                  'text-blue-600 dark:text-blue-400',
+                  'text-purple-600 dark:text-purple-400',
+                  'text-emerald-600 dark:text-emerald-400',
+                  'text-orange-600 dark:text-orange-400',
+                ];
+                const colorIdx = i % 4;
 
-          <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
-            Fast 24-hour response confirmation. Direct developer contact.
+                return (
+                  <div key={i} className={`${colors[colorIdx]} rounded-xl p-6 border border-slate-200 dark:border-slate-700`}>
+                    <div className={`w-10 h-10 rounded-lg ${textColors[colorIdx]} text-xl mb-4 flex items-center justify-center`}>
+                      {cap.icon || ['🚀', '⚡', '🔒', '📊'][colorIdx]}
+                    </div>
+                    <h3 className="font-bold text-slate-900 dark:text-white mb-2">{cap.title}</h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{cap.description}</p>
+                    <a href="#" className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                      Learn more →
+                    </a>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ═════════════════════════════════════════════════════════════
+          INSIDE THE PRODUCT (Tech Specs)
+      ═════════════════════════════════════════════════════════════ */}
+      <section className="py-20 bg-slate-900 dark:bg-[#0A0E14] border-b border-slate-800">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="grid lg:grid-cols-[1.1fr_1fr] gap-12 items-start">
+            {/* Left: Text */}
+            <div>
+              <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+                {d.techTitle || 'Inside the Product'}
+              </h2>
+              <p className="text-slate-300 mb-8">
+                {d.techDescription || 'Technical architecture and implementation details'}
+              </p>
+
+              {/* Tech Specs Table */}
+              {d.techSpecs && d.techSpecs.length > 0 && (
+                <div className="space-y-4">
+                  {d.techSpecs.map((spec: any, i: number) => (
+                    <div key={i} className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                      <div className="text-xs text-slate-400 font-mono uppercase mb-1">{spec.category}</div>
+                      <div className="text-sm font-bold text-white">{spec.tech}</div>
+                      {spec.note && (
+                        <div className="text-xs text-slate-400 mt-1">{spec.note}</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Right: Screenshot */}
+            {d.techImageUrl && (
+              <div className="rounded-xl overflow-hidden border border-slate-700 shadow-2xl">
+                <div className="bg-slate-800 border-b border-slate-700 px-4 py-2 flex items-center gap-2">
+                  <div className="flex gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
+                  </div>
+                  <span className="text-xs text-slate-400 font-mono ml-2">analytics.dashboard</span>
+                </div>
+                <img src={d.techImageUrl} alt="Tech" className="w-full h-auto" loading="lazy" />
+              </div>
+            )}
           </div>
         </div>
       </section>
 
+      {/* ═════════════════════════════════════════════════════════════
+          HOW IT WAS BUILT (Timeline/Phases)
+      ═════════════════════════════════════════════════════════════ */}
+      <section className="py-20 bg-white dark:bg-[#0F1419] border-b border-slate-200 dark:border-slate-800">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white mb-12">
+            {d.howBuiltTitle || 'How It Was Built'}
+          </h2>
+
+          {/* Timeline */}
+          {d.howBuiltItems && d.howBuiltItems.length > 0 && (
+            <div className="space-y-6">
+              {d.howBuiltItems.map((item: any, i: number) => (
+                <div key={i} className="flex gap-6">
+                  <div className="flex flex-col items-center">
+                    <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
+                      {i + 1}
+                    </div>
+                    {i < (d.howBuiltItems?.length || 0) - 1 && (
+                      <div className="w-0.5 h-20 bg-slate-300 dark:bg-slate-700 mt-4" />
+                    )}
+                  </div>
+                  <div className="pb-6 flex-1">
+                    <div className="flex items-baseline gap-3 mb-2">
+                      <h3 className="font-bold text-slate-900 dark:text-white text-lg">{item.phase}</h3>
+                      <span className="text-xs text-slate-500 font-mono">{item.weeks} weeks</span>
+                    </div>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">{item.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ═════════════════════════════════════════════════════════════
+          THE OUTCOME: VERIFIED DELIVERABLES
+      ═════════════════════════════════════════════════════════════ */}
+      <section className="py-20 bg-slate-50 dark:bg-[#141A24] border-b border-slate-200 dark:border-slate-800">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white mb-4">
+            {d.outcomesTitle || 'The Outcome: Verified Deliverables'}
+          </h2>
+          <p className="text-slate-600 dark:text-slate-400 mb-12">
+            {d.outcomesDescription || 'Measurable results and business impact'}
+          </p>
+
+          {/* Metrics Grid */}
+          {d.deliverables && d.deliverables.length > 0 && (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {d.deliverables.map((metric: any, i: number) => (
+                <div key={i} className="bg-white dark:bg-[#0F1419] rounded-xl p-8 border border-slate-200 dark:border-slate-700 text-center">
+                  <div className="text-4xl mb-4">{metric.icon}</div>
+                  <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">{metric.value}</div>
+                  <h3 className="font-bold text-slate-900 dark:text-white mb-2">{metric.title}</h3>
+                  {metric.note && (
+                    <p className="text-xs text-slate-600 dark:text-slate-400">{metric.note}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ═════════════════════════════════════════════════════════════
+          EXPLORE ANOTHER PROJECT
+      ═════════════════════════════════════════════════════════════ */}
+      {d.relatedSlugs && d.relatedSlugs.length > 0 && (
+        <section className="py-20 bg-white dark:bg-[#0F1419] border-b border-slate-200 dark:border-slate-800">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+            <div className="flex items-center justify-between mb-12">
+              <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white">
+                Explore Another Project
+              </h2>
+              <a href="/projects" className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                View All Projects →
+              </a>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              {['travel-app', 'absensi-siswa-berbasis-qrcode'].map((slug: string, i: number) => (
+                <div
+                  key={i}
+                  onClick={() => navigateTo(`/projects/${slug}`)}
+                  className="group cursor-pointer rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all"
+                >
+                  <div className="aspect-video bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-800 dark:to-slate-900" />
+                  <div className="p-6 bg-white dark:bg-[#141A24]">
+                    <h3 className="font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                      {slug === 'travel-app' ? 'Travel App' : 'Absensi Siswa'}
+                    </h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
+                      {slug === 'travel-app'
+                        ? 'Platform travel untuk booking paket wisata'
+                        : 'Sistem absensi modern dengan face recognition'}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ═════════════════════════════════════════════════════════════
+          BIG CTA SECTION
+      ═════════════════════════════════════════════════════════════ */}
+      <section className="py-24 bg-gradient-to-r from-slate-900 to-slate-800 dark:from-slate-950 dark:to-black">
+        <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
+          <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">
+            Building Something Similar?
+          </h2>
+          <p className="text-xl text-slate-300 mb-10 max-w-2xl mx-auto">
+            Let's explore how we can architect a solution tailored to your operational model and business goals.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button
+              onClick={() => navigateTo('/contact')}
+              className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-lg"
+            >
+              Start a Conversation
+            </button>
+            <button
+              onClick={() => navigateTo('/projects')}
+              className="px-8 py-4 border border-slate-400 hover:border-white text-white font-semibold rounded-lg transition-colors"
+            >
+              Explore Our Work
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ═════════════════════════════════════════════════════════════
+          FOOTER
+      ═════════════════════════════════════════════════════════════ */}
+      <section className="py-12 bg-white dark:bg-[#0F1419] border-t border-slate-200 dark:border-slate-800">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-500">
+            <p>© 2024 ALZERA. All rights reserved.</p>
+            <div className="flex items-center gap-6">
+              <a href="#" className="hover:text-slate-700 dark:hover:text-slate-300">
+                Privacy
+              </a>
+              <a href="#" className="hover:text-slate-700 dark:hover:text-slate-300">
+                Terms
+              </a>
+              <a href="#" className="hover:text-slate-700 dark:hover:text-slate-300">
+                Contact
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };
