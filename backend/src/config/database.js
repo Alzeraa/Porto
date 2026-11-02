@@ -833,6 +833,224 @@ const initDatabase = async () => {
       }
     }
 
+    // Portfolio Website
+    const portfolioCheck = await client.query(
+      'SELECT id FROM project_details WHERE project_id = (SELECT id FROM projects WHERE slug = $1 LIMIT 1)',
+      ['portfolio-website']
+    );
+
+    if (portfolioCheck.rows.length === 0) {
+      const portfolioProjectId = await client.query(
+        'SELECT id FROM projects WHERE slug = $1 LIMIT 1',
+        ['portfolio-website']
+      );
+
+      if (portfolioProjectId.rows.length > 0) {
+        const projectId = portfolioProjectId.rows[0].id;
+        await client.query(`
+          INSERT INTO project_details (
+            project_id, tagline, hero_stats, screenshot_url, archive_code, year,
+            overview_title, overview_description, overview_meta,
+            problem_title, problem_description, bottlenecks,
+            solution_title, solution_description, pipeline,
+            capabilities_title, capabilities,
+            tech_title, tech_specs, tech_image_url,
+            outcomes_title, deliverables,
+            how_built_title, how_built_description, how_built_items,
+            related_slugs
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)
+        `, [
+          projectId,
+          'Modern Developer Portfolio',
+          JSON.stringify([
+            { value: '10K+', label: 'MONTHLY VISITORS', blue: true, sub: 'Active portfolio viewers' },
+            { value: '99.9%', label: 'UPTIME', sub: 'Reliable hosting' },
+            { value: '0.8s', label: 'LOAD TIME', blue: true, sub: 'Optimized performance' }
+          ]),
+          'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800',
+          'CS-Portfolio-2024',
+          2024,
+          
+          'Project Overview',
+          'Portfolio website modern yang showcase skills, projects, dan pengalaman developer dengan design yang clean dan performa yang optimal.',
+          JSON.stringify([
+            { icon: '🎨', title: 'Modern Design', desc: 'Clean and professional design system' },
+            { icon: '⚡', title: 'High Performance', desc: 'Optimized for speed and responsiveness' },
+            { icon: '📱', title: 'Fully Responsive', desc: 'Works perfect on all devices' }
+          ]),
+          
+          'Challenge',
+          'Portfolio generik tidak showcase developer skills dengan efektif dan tidak memorable untuk potential employers.',
+          JSON.stringify([
+            { icon: '😴', title: 'Generic Templates', desc: "Standard portfolio doesn't stand out" },
+            { icon: '🐌', title: 'Poor Performance', desc: 'Slow loading affects user experience' },
+            { icon: '📉', title: 'Low Engagement', desc: "Doesn't drive meaningful connections" }
+          ]),
+          
+          'Approach',
+          'Membangun portfolio yang unique dengan design yang striking, performa yang excellent, dan content yang showcasing.',
+          JSON.stringify([
+            { num: '01', title: 'Custom Design', desc: 'Unique design that reflects personality' },
+            { num: '02', title: 'Performance First', desc: 'Optimized for speed and SEO' },
+            { num: '03', title: 'Project Showcase', desc: 'Detailed case studies of projects' },
+            { num: '04', title: 'Contact Integration', desc: 'Easy way for opportunities' }
+          ]),
+          
+          'Key Features',
+          JSON.stringify([
+            { title: 'Hero Section', description: 'Compelling introduction with CTA' },
+            { title: 'Project Gallery', description: 'Showcase of best works with filters' },
+            { title: 'Skills Section', description: 'Technical skills visualization' },
+            { title: 'Experience Timeline', description: 'Professional experience display' },
+            { title: 'Case Studies', description: 'Detailed project write-ups' },
+            { title: 'Blog Integration', description: 'Technical articles and insights' },
+            { title: 'Contact Form', description: 'Easy contact and inquiry system' },
+            { title: 'Dark Mode', description: 'Beautiful dark theme support' }
+          ]),
+          
+          'Tech Stack Used',
+          JSON.stringify([
+            { category: 'Frontend', tech: 'React + TypeScript', note: 'Component-based architecture' },
+            { category: 'Styling', tech: 'Tailwind CSS', note: 'Utility-first CSS' },
+            { category: 'Deployment', tech: 'Vercel', note: 'Serverless deployment' },
+            { category: 'CMS', tech: 'Markdown', note: 'Simple content management' },
+            { category: 'Analytics', tech: 'Google Analytics', note: 'Track visitor behavior' },
+            { category: 'SEO', tech: 'Next.js SEO', note: 'Optimized for search' }
+          ]),
+          'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800',
+          
+          'Achievements',
+          JSON.stringify([
+            { icon: '🏆', title: 'Job Offers', value: '5+', note: 'Direct opportunities from portfolio' },
+            { icon: '📊', title: 'Engagement', value: '+200%', note: 'Higher conversion rate' },
+            { icon: '⭐', title: 'Reviews', value: '4.9/5', note: 'Visitor feedback' },
+            { icon: '🚀', title: 'Performance', value: '100/100', note: 'Lighthouse score' }
+          ]),
+          
+          'Development Timeline',
+          'Quick turnaround untuk launch portfolio yang impactful.',
+          JSON.stringify([
+            { phase: 'Design & Planning', weeks: '1', description: 'Created design mockups' },
+            { phase: 'Development', weeks: '2', description: 'Built React components' },
+            { phase: 'Content Creation', weeks: '1', description: 'Wrote case studies' },
+            { phase: 'Optimization & Launch', weeks: '1', description: 'Performance optimization' }
+          ]),
+          
+          ARRAY['travel-app', 'logiflow-dispatch-portal']
+        ]);
+        console.log('[Database] Portfolio Website project detail seeded.');
+      }
+    }
+
+    // Aplikasi Perkuliahan
+    const perkuliahanCheck = await client.query(
+      'SELECT id FROM project_details WHERE project_id = (SELECT id FROM projects WHERE slug = $1 LIMIT 1)',
+      ['aplikasi-perkuliahan']
+    );
+
+    if (perkuliahanCheck.rows.length === 0) {
+      const perkuliahanProjectId = await client.query(
+        'SELECT id FROM projects WHERE slug = $1 LIMIT 1',
+        ['aplikasi-perkuliahan']
+      );
+
+      if (perkuliahanProjectId.rows.length > 0) {
+        const projectId = perkuliahanProjectId.rows[0].id;
+        await client.query(`
+          INSERT INTO project_details (
+            project_id, tagline, hero_stats, screenshot_url, archive_code, year,
+            overview_title, overview_description, overview_meta,
+            problem_title, problem_description, bottlenecks,
+            solution_title, solution_description, pipeline,
+            capabilities_title, capabilities,
+            tech_title, tech_specs, tech_image_url,
+            outcomes_title, deliverables,
+            how_built_title, how_built_description, how_built_items,
+            related_slugs
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)
+        `, [
+          projectId,
+          'Integrated Campus Management System',
+          JSON.stringify([
+            { value: '1000+', label: 'ACTIVE USERS', blue: true, sub: 'Students and lecturers' },
+            { value: '15+', label: 'UNIVERSITIES', sub: 'Across Indonesia' },
+            { value: '98%', label: 'ADOPTION RATE', blue: true, sub: 'Student satisfaction' }
+          ]),
+          'https://plus.unsplash.com/premium_photo-1664301435093-9804155eb991?q=80&w=1470&auto=format&fit=crop',
+          'CS-Perkuliahan-2024',
+          2024,
+          
+          'Project Overview',
+          'Aplikasi manajemen perkuliahan yang comprehensive untuk mengelola kelas, assignments, grades, dan komunikasi antara mahasiswa dan dosen dalam satu platform terintegrasi.',
+          JSON.stringify([
+            { icon: '📚', title: 'Centralized Learning', desc: 'All course materials in one place' },
+            { icon: '📝', title: 'Assignment Management', desc: 'Easy submission and grading system' },
+            { icon: '💬', title: 'Communication Hub', desc: 'Direct messaging and announcements' }
+          ]),
+          
+          'Problem',
+          'Universitas menggunakan multiple systems yang tidak terintegrasi, menyebabkan confusion dan komunikasi yang inefficient.',
+          JSON.stringify([
+            { icon: '🔀', title: 'Fragmented Systems', desc: 'Multiple disconnected platforms' },
+            { icon: '📧', title: 'Poor Communication', desc: 'Email overload and missed messages' },
+            { icon: '📊', title: 'No Central Hub', desc: 'Students confused where to find info' }
+          ]),
+          
+          'Solution',
+          'Integrated platform yang consolidates semua aspek manajemen perkuliahan untuk simplify academic workflow.',
+          JSON.stringify([
+            { num: '01', title: 'Unified Dashboard', desc: 'All courses and materials in one place' },
+            { num: '02', title: 'Assignment Tracking', desc: 'Submit, grade, and track assignments' },
+            { num: '03', title: 'Grade Management', desc: 'Central grade book and transcript' },
+            { num: '04', title: 'Communication Tools', desc: 'Announcements, messaging, and notifications' }
+          ]),
+          
+          'Key Capabilities',
+          JSON.stringify([
+            { title: 'Course Management', description: 'Create and manage courses, sections, and materials' },
+            { title: 'Assignment System', description: 'Create, distribute, collect, and grade assignments' },
+            { title: 'Grade Book', description: 'Comprehensive gradebook with automatic calculations' },
+            { title: 'Student Records', description: 'Manage student information and enrollments' },
+            { title: 'Messaging', description: 'Direct messaging between instructors and students' },
+            { title: 'Announcements', description: 'Class-wide and course announcements' },
+            { title: 'Attendance Tracking', description: 'Digital attendance and absence management' },
+            { title: 'Document Library', description: 'Upload and share course materials' }
+          ]),
+          
+          'Technical Architecture',
+          JSON.stringify([
+            { category: 'Mobile', tech: 'Flutter & Dart', note: 'iOS and Android apps' },
+            { category: 'Backend', tech: 'Node.js', note: 'Scalable API server' },
+            { category: 'Database', tech: 'Firebase', note: 'Real-time data sync' },
+            { category: 'Cloud', tech: 'Google Cloud', note: 'Scalable infrastructure' },
+            { category: 'Notifications', tech: 'Firebase Cloud Messaging', note: 'Push notifications' },
+            { category: 'Security', tech: 'OAuth 2.0', note: 'Secure authentication' }
+          ]),
+          'https://plus.unsplash.com/premium_photo-1664301435093-9804155eb991?q=80&w=1470&auto=format&fit=crop',
+          
+          'Results Delivered',
+          JSON.stringify([
+            { icon: '⏱️', title: 'Time Saved', value: '5h/week', note: 'Per instructor saved' },
+            { icon: '📈', title: 'Engagement', value: '+150%', note: 'Student participation increase' },
+            { icon: '⭐', title: 'Satisfaction', value: '4.7/5', note: 'User rating' },
+            { icon: '📊', title: 'Adoption', value: '98%', note: 'University-wide adoption' }
+          ]),
+          
+          'Development Phases',
+          'Staged rollout untuk ensure quality at each phase.',
+          JSON.stringify([
+            { phase: 'Requirements Gathering', weeks: '2', description: 'Interviewed students and instructors' },
+            { phase: 'Core Development', weeks: '8', description: 'Built main features and backend' },
+            { phase: 'Mobile Apps', weeks: '6', description: 'Developed iOS and Android apps' },
+            { phase: 'Testing & Rollout', weeks: '4', description: 'UAT and phased university rollout' }
+          ]),
+          
+          ARRAY['travel-app', 'absensi-siswa-qrcode']
+        ]);
+        console.log('[Database] Aplikasi Perkuliahan project detail seeded.');
+      }
+    }
+
     console.log('[Database] Inisialisasi selesai.');
   } catch (err) {
     console.error('[Database] Inisialisasi gagal:', err.message);
@@ -849,3 +1067,5 @@ initDatabase().catch((err) => {
 });
 
 module.exports = pool;
+
+
